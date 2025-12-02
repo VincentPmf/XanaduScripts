@@ -1,0 +1,53 @@
+<#
+.SYNOPSIS
+    Creates a new Active Directory user.
+
+.DESCRIPTION
+    Accepts -Nom (last name), -Prenom (first name), and -Group.
+    If any parameter is missing, prompts the user interactively.
+    Displays available groups before asking for group selection.
+
+.EXAMPLE
+    .\newUser.ps1 -Nom "Doe" -Prenom "John" -Group "Compta"
+#>
+
+param (
+    [string]$Nom,
+    [string]$Prenom,
+    [string]$Groupe
+)
+
+
+if (-not $Nom) {
+    $Nom = Read-Host "Veuillez spécifier le nom (Nom)"
+}
+
+if (-not $Prenom) {
+    $Prenom = Read-Host "Veuillez spécifier le prénom (Prenom)"
+}
+
+# --- Step 2: Display available groups ---
+
+Write-Host "`n=== Available AD Groups ===" -ForegroundColor Cyan
+Get-ADGroup -Filter * | Select-Object -ExpandProperty Name | Sort-Object | ForEach-Object { Write-Host "  - $_" }
+Write-Host ""
+
+if (-not $Group) {
+    $Group = Read-Host "Enter group name to add the user to"
+}
+
+# --- Step 3: Build user details ---
+
+$SamAccountName = "$($Prenom.ToLower()).$($Nom.ToLower())"
+$DisplayName    = "$Prenom $Nom"
+$UserPrincipalName = "$SamAccountName@$((Get-ADDomain).DNSRoot)"
+
+Write-Host "`n=== User to create ===" -ForegroundColor Green
+Write-Host "  Display Name : $DisplayName"
+Write-Host "  SamAccountName : $SamAccountName"
+Write-Host "  UPN : $UserPrincipalName"
+Write-Host "  Group : $Group"
+Write-Host ""
+
+# --- Placeholder for actual creation (next step) ---
+Write-Host "[INFO] User creation logic will be added in the next step." -ForegroundColor Yellow
