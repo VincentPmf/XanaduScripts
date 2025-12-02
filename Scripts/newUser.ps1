@@ -30,7 +30,7 @@ function New-User {
 
     $DomainDN = (Get-ADDomain).DistinguishedName
     $SearchBase = "OU=Groups,$DomainDN"
-    Write-Host "$SearchBase"
+    Write-Host "Test $SearchBase"
 
     Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
     Get-ADGroup -Filter * -SearchBase $SearchBase  |
