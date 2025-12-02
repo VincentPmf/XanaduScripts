@@ -30,12 +30,16 @@ function New-User {
 
     $DomainDN = (Get-ADDomain).DistinguishedName
     $SearchBase = "OU=Groups,$DomainDN"
-    Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
-    Get-ADOrganizationalUnit -Identity $SearchBase  |
-        Select-Object -ExpandProperty Name |
-        Sort-Object |
+
+    Get-ADObject -Filter * -SearchBase "OU=Groups,$((Get-ADDomain).DistinguishedName)" |
         ForEach-Object { Write-Host "  - $_" }
-    Write-Host ""
+
+    # Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
+    # Get-ADGroup -Filter * -SearchBase $SearchBase  |
+    #     Select-Object -ExpandProperty Name |
+    #     Sort-Object |
+    #     ForEach-Object { Write-Host "  - $_" }
+    # Write-Host ""
 
     if (-not $Groupe) {
         $Groupe = Read-Host "Veuillez spécifier le groupe (Groupe)"
