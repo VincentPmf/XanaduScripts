@@ -31,7 +31,7 @@ function New-User {
     $DomainDN = (Get-ADDomain).DistinguishedName
     $SearchBase = "OU=Groups,$DomainDN"
     Write-Host "Test $SearchBase"
-    Get-ADGroup -Filter * |
+    Get-ADOrganizationalUnit -Filter * |
         Select-Object Name, DistinguishedName |
         Format-Table -AutoSize
     # Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
