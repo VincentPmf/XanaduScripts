@@ -29,7 +29,7 @@ function New-User {
     }
 
     $DomainDN = (Get-ADDomain).DistinguishedName
-    $SearchBase = "OU=OU=Groups,$DomainDN"
+    $SearchBase = "OU=Xanadu,OU=Groups,$DomainDN"
 
     Get-ADOrganizationalUnit -Filter * | Select-Object Name, DistinguishedName | Format-Table -AutoSize
 
