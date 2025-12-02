@@ -28,8 +28,14 @@ function New-User {
         $Prenom = Read-Host "Veuillez spécifier le prénom (Prenom)"
     }
 
+    $DomainDN = (Get-ADDomain).DistinguishedName
+    $SearchBase = "OU=Groups,$DomainDN"
+
     Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
-    Get-ADGroup -Filter * | Select-Object -ExpandProperty Name | Sort-Object | ForEach-Object { Write-Host "  - $_" }
+    Get-ADGroup -Filter * -SearchBase $SearchBase  |
+        Select-Object -ExpandProperty Name |
+        Sort-Object |
+        ForEach-Object { Write-Host "  - $_" }
     Write-Host ""
 
     if (-not $Groupe) {
