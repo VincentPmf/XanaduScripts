@@ -77,13 +77,12 @@ function Select-FromList {
 
     try {
         while ($true) {
-            Clear-Host
             Write-Host "`n$Title" -ForegroundColor Cyan
             Write-Host ("=" * $Title.Length) -ForegroundColor Cyan
 
             for ($i = 0; $i -lt $Options.Count; $i++) {
                 if ($i -eq $selectedIndex) {
-                    Write-Host "  ▶ " -NoNewline -ForegroundColor Green
+                    Write-Host "    -> " -NoNewline -ForegroundColor Green
                     Write-Host $Options[$i] -ForegroundColor Black -BackgroundColor Green
                 }
                 else {
@@ -102,11 +101,9 @@ function Select-FromList {
                     else { $selectedIndex = 0 }
                 }
                 'Enter' {
-                    Clear-Host
                     return $Options[$selectedIndex]
                 }
                 'Escape' {
-                    Clear-Host
                     return $null
                 }
             }
