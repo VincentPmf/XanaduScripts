@@ -75,16 +75,27 @@ function Select-FromList {
     $cursorVisible = [Console]::CursorVisible
     [Console]::CursorVisible = $false
 
+    Write-Host "`n$Title" -ForegroundColor Cyan
+    Write-Host ("=" * $Title.Length) -ForegroundColor Cyan
+
+    $menuStartPos = [Console]::GetCursorPosition()
+
     try {
         while ($true) {
-            Write-Host "`n$Title" -ForegroundColor Cyan
-            Write-Host ("=" * $Title.Length) -ForegroundColor Cyan
-
+            [Console]::SetCursorPosition($menuStartPos.Item1, $menuStartPos.Item2)
             for ($i = 0; $i -lt $Options.Count; $i++) {
-                if ($i -eq $selectedIndex) {
-                    Write-Host "    -> " -NoNewline -ForegroundColor Green
-                    Write-Host $Options[$i] -ForegroundColor Black -BackgroundColor Green
+                $lineContent = if ($i -eq $selectedIndex) {
+                    "  -> $($Options[$i])"
+                } else {
+                    "     $($Options[$i])"
                 }
+                $padding = " " * ([Console]::WindowWidth - $lineContent.Length - 1)
+
+                if ($i -eq $selectedIndex) {
+                    Write-Host "  -> " -NoNewline -ForegroundColor Green
+                    Write-Host "$($Options[$i])$padding" -ForegroundColor Black -BackgroundColor Green
+                }
+
                 else {
                     Write-Host "    $($Options[$i])" -ForegroundColor White
                 }
@@ -101,9 +112,13 @@ function Select-FromList {
                     else { $selectedIndex = 0 }
                 }
                 'Enter' {
+                    [Console]::SetCursorPosition(0, $menuStartPos.Item2 + $Options.Count)
+                    Write-Host ""
                     return $Options[$selectedIndex]
                 }
                 'Escape' {
+                    [Console]::SetCursorPosition(0, $menuStartPos.Item2 + $Options.Count)
+                    Write-Host ""
                     return $null
                 }
             }

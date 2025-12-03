@@ -42,7 +42,6 @@ function New-User {
     if ($Group -notin $myGroups) {
         # $Group = Select-FromList -Title "Sélectionnez un groupe" -Options $myGroups
 
-        Select-FromList -anr $myGroups | Out-GridView -PassThru | Set-User -EnableAccount true
 
 
         if (-not $Group) {
