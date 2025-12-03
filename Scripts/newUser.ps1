@@ -33,20 +33,25 @@ function New-User {
     $DomainDN = (Get-ADDomain).DistinguishedName
     $SearchBase = "OU=Groups,OU=Xanadu,$DomainDN"
 
-    $myGroups = Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope OneLevel
+    $myGroups = Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope OneLevel |
+        Select-Object -ExpandProperty Name |
+        Sort-Object
 
     $myGroups | Show-ADGroups
 
-    if (-not $Group) {
-        $Group = Read-Host "Veuillez spécifier le groupe (choisir un des noms ci-dessus)"
-    }
-    while ($Group -notin $myGroups) {
-        Write-Host "Le groupe '$Group' n'existe pas, veuillez entrer un nom valide" -ForegroundColor Red
-        $myGroups | Show-ADGroups
+    if ($Group -notin $myGroups) {
+        if (-not $Group) {
+            $message = "Aucun groupe spécifié. Veuillez sélectionner un groupe dans la liste."
+        }
+        else {
+            $message = "Le groupe '$Group' n'existe pas. Veuillez sélectionner un groupe dans la liste."
+        }
+        $Group = Select-FromList -Title $message -Options $myGroups
 
-        $Group = Read-Host "Veuillez spécifier le groupe (choisir un des noms ci-dessus)"
-
-        Write-Host "$($Group -notin $myGroups)"
+        if (-not $Group) {
+            Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
+            return
+        }
     }
 
     # --- Step 3: Build user details ---
