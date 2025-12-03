@@ -31,7 +31,7 @@ function New-User {
     $DomainDN = (Get-ADDomain).DistinguishedName
     $SearchBase = "OU=Groups,OU=Xanadu,$DomainDN"
 
-    Get-ADOrganizationalUnit -Filter * | Select-Object Name, DistinguishedName | Format-Table -AutoSize
+    Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase | Select-Object Name, DistinguishedName | Format-Table -AutoSize
 
     Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
     Get-ADGroup -Filter * -SearchBase $SearchBase  |
