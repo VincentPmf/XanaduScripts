@@ -83,51 +83,51 @@ function Select-FromList {
 
     Write-Output "X: $X | Y: $Y"
 
-    try {
-        while ($true) {
-            [Console]::SetCursorPosition($menuStartPos.Item1, $menuStartPos.Item2)
-            for ($i = 0; $i -lt $Options.Count; $i++) {
-                $lineContent = if ($i -eq $selectedIndex) {
-                    "  -> $($Options[$i])"
-                } else {
-                    "     $($Options[$i])"
-                }
-                $padding = " " * ([Console]::WindowWidth - $lineContent.Length - 1)
+    # try {
+    #     while ($true) {
+    #         [Console]::SetCursorPosition($menuStartPos.Item1, $menuStartPos.Item2)
+    #         for ($i = 0; $i -lt $Options.Count; $i++) {
+    #             $lineContent = if ($i -eq $selectedIndex) {
+    #                 "  -> $($Options[$i])"
+    #             } else {
+    #                 "     $($Options[$i])"
+    #             }
+    #             $padding = " " * ([Console]::WindowWidth - $lineContent.Length - 1)
 
-                if ($i -eq $selectedIndex) {
-                    Write-Host "  -> " -NoNewline -ForegroundColor Green
-                    Write-Host "$($Options[$i])$padding" -ForegroundColor Black -BackgroundColor Green
-                }
+    #             if ($i -eq $selectedIndex) {
+    #                 Write-Host "  -> " -NoNewline -ForegroundColor Green
+    #                 Write-Host "$($Options[$i])$padding" -ForegroundColor Black -BackgroundColor Green
+    #             }
 
-                else {
-                    Write-Host "    $($Options[$i])" -ForegroundColor White
-                }
-            }
-            $key = [Console]::ReadKey($true)
+    #             else {
+    #                 Write-Host "    $($Options[$i])" -ForegroundColor White
+    #             }
+    #         }
+    #         $key = [Console]::ReadKey($true)
 
-            switch ($key.Key) {
-                'UpArrow' {
-                    if ($selectedIndex -gt 0) { $selectedIndex-- }
-                    else { $selectedIndex = $Options.Count - 1 }
-                }
-                'DownArrow' {
-                    if ($selectedIndex -lt $Options.Count - 1) { $selectedIndex++ }
-                    else { $selectedIndex = 0 }
-                }
-                'Enter' {
-                    [Console]::SetCursorPosition(0, $menuStartPos.Item2 + $Options.Count)
-                    Write-Host ""
-                    return $Options[$selectedIndex]
-                }
-                'Escape' {
-                    [Console]::SetCursorPosition(0, $menuStartPos.Item2 + $Options.Count)
-                    Write-Host ""
-                    return $null
-                }
-            }
-        }
-    }
-    finally {
-        [Console]::CursorVisible = $cursorVisible
-    }
+    #         switch ($key.Key) {
+    #             'UpArrow' {
+    #                 if ($selectedIndex -gt 0) { $selectedIndex-- }
+    #                 else { $selectedIndex = $Options.Count - 1 }
+    #             }
+    #             'DownArrow' {
+    #                 if ($selectedIndex -lt $Options.Count - 1) { $selectedIndex++ }
+    #                 else { $selectedIndex = 0 }
+    #             }
+    #             'Enter' {
+    #                 [Console]::SetCursorPosition(0, $menuStartPos.Item2 + $Options.Count)
+    #                 Write-Host ""
+    #                 return $Options[$selectedIndex]
+    #             }
+    #             'Escape' {
+    #                 [Console]::SetCursorPosition(0, $menuStartPos.Item2 + $Options.Count)
+    #                 Write-Host ""
+    #                 return $null
+    #             }
+    #         }
+    #     }
+    # }
+    # finally {
+    #     [Console]::CursorVisible = $cursorVisible
+    # }
 }
