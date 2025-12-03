@@ -32,25 +32,22 @@ function New-User {
     $SearchBase = "OU=Groups,OU=Xanadu,$DomainDN"
 
     $myGroups = Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope OneLevel
-            Select-Object -ExpandProperty Name |
-            Sort-Object
-
 
     Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
-    $myGroups | ForEach-Object { Write-Host "  $_" }
+    $myGroups | Show-ADGroups
     Write-Host ""
 
-    if (-not $Group) {
-        $Group = Read-Host "Veuillez spécifier le groupe (Groupe)"
-    }
+    if (-not $Group) { $Groupe = $null }
     do {
+        if (-not $Groupe) {
+            $Groupe = Read-Host "Veuillez spécifier le groupe (choisir un des noms ci-dessus)"
+        }
         if ($Group -notin $myGroups) {
-            Write-Host "Le groupe '$Group' n'existe pas, veuillez entrer un groupe valide"
-            Write-Host ""
+            Write-Host "Le groupe '$Group' n'existe pas, veuillez entrer un nom valide" -ForegroundColor Red
             Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
             $myGroups | ForEach-Object { Write-Host "  $_" }
             Write-Host ""
-            $Group = ""
+            $Groupe = $null
         }
     } while (-not $Group)
 
