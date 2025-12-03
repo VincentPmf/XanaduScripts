@@ -40,9 +40,7 @@ function New-User {
     Show-ADGroups -InputObjects $myGroups
 
     if ($Group -notin $myGroups) {
-        # $Group = Select-FromList -Title "Sélectionnez un groupe" -Options $myGroups
-
-
+        $Group = Select-FromList -Title "Sélectionnez un groupe" -Options $myGroups
 
         if (-not $Group) {
             Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
