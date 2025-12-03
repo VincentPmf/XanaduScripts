@@ -38,14 +38,15 @@ function New-User {
     $myGroups | Show-ADGroups
 
     if (-not $Group) {
-        $Groupe = Read-Host "Veuillez spécifier le groupe (choisir un des noms ci-dessus)"
+        $Group = Read-Host "Veuillez spécifier le groupe (choisir un des noms ci-dessus)"
     }
     while ($Group -notin $myGroups) {
         Write-Host "Le groupe '$Group' n'existe pas, veuillez entrer un nom valide" -ForegroundColor Red
         $myGroups | Show-ADGroups
 
-
         $Group = Read-Host "Veuillez spécifier le groupe (choisir un des noms ci-dessus)"
+
+        Write-Host "$($Group -notin $myGroups)"
     }
 
     # --- Step 3: Build user details ---
