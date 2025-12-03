@@ -50,7 +50,7 @@ function New-User {
             Write-Host ""
 
 
-            $Groupe = Read-Host "Veuillez spécifier le groupe (choisir un des noms ci-dessus)"
+            $Group = Read-Host "Veuillez spécifier le groupe (choisir un des noms ci-dessus)"
         }
     } while (-not $Group)
 
