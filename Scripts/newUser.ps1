@@ -48,6 +48,9 @@ function New-User {
             Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
             $myGroups | ForEach-Object { Write-Host "  $_" }
             Write-Host ""
+
+
+            $Groupe = Read-Host "Veuillez spécifier le groupe (choisir un des noms ci-dessus)"
         }
     } while (-not $Group)
 
