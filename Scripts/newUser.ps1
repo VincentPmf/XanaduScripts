@@ -32,7 +32,7 @@ function New-User {
     $SearchBase = "OU=Groups,OU=Xanadu,$DomainDN"
 
     Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
-    Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope Subtree |
+    Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope OneLevel |
         Select-Object -ExpandProperty Name |
         Sort-Object |
         ForEach-Object { Write-Host "  - $_" }
