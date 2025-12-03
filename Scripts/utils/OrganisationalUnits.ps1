@@ -14,6 +14,7 @@ function Show-ADGroups {
     )
 
     process {
+        Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
         foreach ($obj in $InputObjects) {
             if ($null -eq $obj) { continue }
 
@@ -35,6 +36,7 @@ function Show-ADGroups {
 
             Write-Host "  - $name"
         }
+        Write-Host ""
     }
 
     end { return }

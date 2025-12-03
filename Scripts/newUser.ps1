@@ -35,27 +35,20 @@ function New-User {
 
     $myGroups = Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope OneLevel
 
-    Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
     $myGroups | Show-ADGroups
-    Write-Host ""
 
     if (-not $Group) {
         $Groupe = Read-Host "Veuillez spécifier le groupe (choisir un des noms ci-dessus)"
     }
-    do {
-        if ($Group -notin $myGroups) {
-            Write-Host "Le groupe '$Group' n'existe pas, veuillez entrer un nom valide" -ForegroundColor Red
-            Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
-            $myGroups | ForEach-Object { Write-Host "  $_" }
-            Write-Host ""
+    while ($Group -notin $myGroups) {
+        Write-Host "Le groupe '$Group' n'existe pas, veuillez entrer un nom valide" -ForegroundColor Red
+        $myGroups | Show-ADGroups
 
 
-            $Group = Read-Host "Veuillez spécifier le groupe (choisir un des noms ci-dessus)"
-        }
-    } while (-not $Group)
+        $Group = Read-Host "Veuillez spécifier le groupe (choisir un des noms ci-dessus)"
+    }
 
     # --- Step 3: Build user details ---
-
     $SamAccountName = "$($Prenom.ToLower()).$($Nom.ToLower())"
     $DisplayName    = "$Prenom $Nom"
     $UserPrincipalName = "$SamAccountName@$((Get-ADDomain).DNSRoot)"
