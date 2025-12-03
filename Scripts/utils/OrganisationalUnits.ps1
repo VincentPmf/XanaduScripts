@@ -78,7 +78,10 @@ function Select-FromList {
     Write-Host "`n$Title" -ForegroundColor Cyan
     Write-Host ("=" * $Title.Length) -ForegroundColor Cyan
 
-    $menuStartPos = [Console]::GetCursorPosition()
+    $X = [System.Windows.Forms.Cursor]::Position.X
+    $Y = [System.Windows.Forms.Cursor]::Position.Y
+
+    Write-Output "X: $X | Y: $Y"
 
     try {
         while ($true) {
