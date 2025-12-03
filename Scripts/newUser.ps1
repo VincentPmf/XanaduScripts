@@ -37,18 +37,18 @@ function New-User {
 
 
     Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
-    $GroupesValides | ForEach-Object { Write-Host "  $_" }
+    $myGroups | ForEach-Object { Write-Host "  $_" }
     Write-Host ""
 
     if (-not $Group) {
         $Group = Read-Host "Veuillez spécifier le groupe (Groupe)"
     }
     do {
-        if ($Group -notin $GroupesValides) {
+        if ($Group -notin $myGroups) {
             Write-Host "Le groupe '$Group' n'existe pas, veuillez entrer un groupe valide"
             Write-Host ""
             Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
-            $GroupesValides | ForEach-Object { Write-Host "  $_" }
+            $myGroups | ForEach-Object { Write-Host "  $_" }
             Write-Host ""
             $Group = ""
         }
