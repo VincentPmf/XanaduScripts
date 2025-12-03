@@ -11,6 +11,8 @@
     .\newUser.ps1 -Nom "Doe" -Prenom "John" -Group "Compta"
 #>
 
+. "$PSScriptRoot\utils\OrganisationalUnits.ps1"
+
 
 function New-User {
     [CmdletBinding()]
