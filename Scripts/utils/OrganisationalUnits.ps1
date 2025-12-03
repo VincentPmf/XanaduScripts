@@ -57,6 +57,8 @@ function Select-FromList {
     .EXAMPLE
         $choice = Select-FromList -Title "Choisir un groupe" -Options @("GRP_Compta", "GRP_Juridique", "GRP_RH")
     #>
+    Add-Type -AssemblyName System.Windows.Forms
+    
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
