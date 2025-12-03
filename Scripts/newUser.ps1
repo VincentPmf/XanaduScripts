@@ -37,9 +37,7 @@ function New-User {
         Select-Object -ExpandProperty Name |
         Sort-Object
 
-    $myGroups | Show-ADGroups
-    Write-Host $myGroups.Count "groupes trouvés dans l'OU 'Groups'.`n" -ForegroundColor DarkGray
-    Write-Host $myGroups | foreach { Write-Host "  - $_" }
+    Show-ADGroups -InputObjects $myGroups
 
     if ($Group -notin $myGroups) {
         if (-not $Group) {
