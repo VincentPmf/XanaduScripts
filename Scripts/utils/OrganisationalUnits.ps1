@@ -81,7 +81,7 @@ function Select-FromList {
     $X = [System.Windows.Forms.Cursor]::Position.X
     $Y = [System.Windows.Forms.Cursor]::Position.Y
 
-    Write-Output "X: $X | Y: $Y"
+    Write-host "X: $X | Y: $Y"
 
     # try {
     #     while ($true) {
