@@ -76,7 +76,7 @@ function Select-FromList {
     [Console]::CursorVisible = $false
 
     try {
-        while ($true) {u
+        while ($true) {
             Clear-Host
             Write-Host "`n$Title" -ForegroundColor Cyan
             Write-Host ("=" * $Title.Length) -ForegroundColor Cyan
