@@ -31,7 +31,7 @@ function New-User {
     }
 
     $DomainDN = (Get-ADDomain).DistinguishedName
-    $SearchBase = "OU=Groups,OU=Xanadu,$DomainDN"
+    $SearchBase = "OU=Users,OU=Xanadu,$DomainDN"
 
     $myGroups = Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope OneLevel |
         Select-Object -ExpandProperty Name |
