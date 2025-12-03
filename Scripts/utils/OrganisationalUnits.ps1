@@ -57,8 +57,7 @@ function Select-FromList {
     .EXAMPLE
         $choice = Select-FromList -Title "Choisir un groupe" -Options @("GRP_Compta", "GRP_Juridique", "GRP_RH")
     #>
-    Add-Type -AssemblyName System.Windows.Forms
-    
+
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
@@ -73,6 +72,7 @@ function Select-FromList {
         return $null
     }
 
+
     $selectedIndex = 0
     $cursorVisible = [Console]::CursorVisible
     [Console]::CursorVisible = $false
@@ -80,6 +80,7 @@ function Select-FromList {
     Write-Host "`n$Title" -ForegroundColor Cyan
     Write-Host ("=" * $Title.Length) -ForegroundColor Cyan
 
+    Add-Type -AssemblyName System.Windows.Forms
     $X = [System.Windows.Forms.Cursor]::Position.X
     $Y = [System.Windows.Forms.Cursor]::Position.Y
 
