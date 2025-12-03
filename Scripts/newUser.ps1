@@ -40,13 +40,10 @@ function New-User {
     Show-ADGroups -InputObjects $myGroups
 
     if ($Group -notin $myGroups) {
-        if (-not $Group) {
-            $message = "Aucun groupe spécifié. Veuillez sélectionner un groupe dans la liste."
-        }
-        else {
-            $message = "Le groupe '$Group' n'existe pas. Veuillez sélectionner un groupe dans la liste."
-        }
-        $Group = Select-FromList -Title $message -Options $myGroups
+        # $Group = Select-FromList -Title "Sélectionnez un groupe" -Options $myGroups
+
+        Get-User -anr $myGroups | Out-GridView -PassThru | Set-User -EnableAccount true
+
 
         if (-not $Group) {
             Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
