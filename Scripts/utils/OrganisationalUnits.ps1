@@ -80,15 +80,11 @@ function Select-FromList {
     Write-Host "`n$Title" -ForegroundColor Cyan
     Write-Host ("=" * $Title.Length) -ForegroundColor Cyan
 
-    Add-Type -AssemblyName System.Windows.Forms
-    $X = [System.Windows.Forms.Cursor]::Position.X
-    $Y = [System.Windows.Forms.Cursor]::Position.Y
-
-    Write-host "X: $X | Y: $Y"
+    $menuStartPos = $Host.UI.RawUI.::GetCursorPosition
 
     try {
         while ($true) {
-            [Console]::SetCursorPosition($X, $Y)
+            $Host.UI.RawUI.CursorPosition = $menuStartPos
             for ($i = 0; $i -lt $Options.Count; $i++) {
                 $lineContent = if ($i -eq $selectedIndex) {
                     "  -> $($Options[$i])"
@@ -118,12 +114,14 @@ function Select-FromList {
                     else { $selectedIndex = 0 }
                 }
                 'Enter' {
-                    [Console]::SetCursorPosition(0, $menuStartPos.Item2 + $Options.Count)
+                    $endPos = [System.Management.Automation.Host.Coordinates]::new(0, $menuStartPos.Y + $Options.Count)
+                    $Host.UI.RawUI.CursorPosition = $endPos
                     Write-Host ""
                     return $Options[$selectedIndex]
                 }
                 'Escape' {
-                    [Console]::SetCursorPosition(0, $menuStartPos.Item2 + $Options.Count)
+                    $endPos = [System.Management.Automation.Host.Coordinates]::new(0, $menuStartPos.Y + $Options.Count)
+                    $Host.UI.RawUI.CursorPosition = $endPos
                     Write-Host ""
                     return $null
                 }
