@@ -81,54 +81,55 @@ function Select-FromList {
     Write-Host ("=" * $Title.Length) -ForegroundColor Cyan
 
     $menuStartPos = $Host.UI.RawUI.GetCursorPosition
+    Write-Host $menuStartPos
 
-    try {
-        while ($true) {
-            $Host.UI.RawUI.CursorPosition = $menuStartPos
-            for ($i = 0; $i -lt $Options.Count; $i++) {
-                $lineContent = if ($i -eq $selectedIndex) {
-                    "  -> $($Options[$i])"
-                } else {
-                    "     $($Options[$i])"
-                }
-                $padding = " " * ([Console]::WindowWidth - $lineContent.Length - 1)
+    # try {
+    #     while ($true) {
+    #         $Host.UI.RawUI.CursorPosition = $menuStartPos
+    #         for ($i = 0; $i -lt $Options.Count; $i++) {
+    #             $lineContent = if ($i -eq $selectedIndex) {
+    #                 "  -> $($Options[$i])"
+    #             } else {
+    #                 "     $($Options[$i])"
+    #             }
+    #             $padding = " " * ([Console]::WindowWidth - $lineContent.Length - 1)
 
-                if ($i -eq $selectedIndex) {
-                    Write-Host "  -> " -NoNewline -ForegroundColor Green
-                    Write-Host "$($Options[$i])$padding" -ForegroundColor Black -BackgroundColor Green
-                }
+    #             if ($i -eq $selectedIndex) {
+    #                 Write-Host "  -> " -NoNewline -ForegroundColor Green
+    #                 Write-Host "$($Options[$i])$padding" -ForegroundColor Black -BackgroundColor Green
+    #             }
 
-                else {
-                    Write-Host "    $($Options[$i])" -ForegroundColor White
-                }
-            }
-            $key = [Console]::ReadKey($true)
+    #             else {
+    #                 Write-Host "    $($Options[$i])" -ForegroundColor White
+    #             }
+    #         }
+    #         $key = [Console]::ReadKey($true)
 
-            switch ($key.Key) {
-                'UpArrow' {
-                    if ($selectedIndex -gt 0) { $selectedIndex-- }
-                    else { $selectedIndex = $Options.Count - 1 }
-                }
-                'DownArrow' {
-                    if ($selectedIndex -lt $Options.Count - 1) { $selectedIndex++ }
-                    else { $selectedIndex = 0 }
-                }
-                'Enter' {
-                    $endPos = [System.Management.Automation.Host.Coordinates]::new(0, $menuStartPos.Y + $Options.Count)
-                    $Host.UI.RawUI.CursorPosition = $endPos
-                    Write-Host ""
-                    return $Options[$selectedIndex]
-                }
-                'Escape' {
-                    $endPos = [System.Management.Automation.Host.Coordinates]::new(0, $menuStartPos.Y + $Options.Count)
-                    $Host.UI.RawUI.CursorPosition = $endPos
-                    Write-Host ""
-                    return $null
-                }
-            }
-        }
-    }
-    finally {
-        [Console]::CursorVisible = $cursorVisible
-    }
+    #         switch ($key.Key) {
+    #             'UpArrow' {
+    #                 if ($selectedIndex -gt 0) { $selectedIndex-- }
+    #                 else { $selectedIndex = $Options.Count - 1 }
+    #             }
+    #             'DownArrow' {
+    #                 if ($selectedIndex -lt $Options.Count - 1) { $selectedIndex++ }
+    #                 else { $selectedIndex = 0 }
+    #             }
+    #             'Enter' {
+    #                 $endPos = [System.Management.Automation.Host.Coordinates]::new(0, $menuStartPos.Y + $Options.Count)
+    #                 $Host.UI.RawUI.CursorPosition = $endPos
+    #                 Write-Host ""
+    #                 return $Options[$selectedIndex]
+    #             }
+    #             'Escape' {
+    #                 $endPos = [System.Management.Automation.Host.Coordinates]::new(0, $menuStartPos.Y + $Options.Count)
+    #                 $Host.UI.RawUI.CursorPosition = $endPos
+    #                 Write-Host ""
+    #                 return $null
+    #             }
+    #         }
+    #     }
+    # }
+    # finally {
+    #     [Console]::CursorVisible = $cursorVisible
+    # }
 }
