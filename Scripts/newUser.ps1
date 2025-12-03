@@ -17,7 +17,7 @@ function New-User {
     param (
         [string]$Nom,
         [string]$Prenom,
-        [string]$Groupe
+        [string]$Group
     )
 
     if (-not $Nom) {
@@ -31,16 +31,28 @@ function New-User {
     $DomainDN = (Get-ADDomain).DistinguishedName
     $SearchBase = "OU=Groups,OU=Xanadu,$DomainDN"
 
+    $myGroups = Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope OneLevel
+            Select-Object -ExpandProperty Name |
+            Sort-Object
+
+
     Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
-    Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope OneLevel |
-        Select-Object -ExpandProperty Name |
-        Sort-Object |
-        ForEach-Object { Write-Host "  - $_" }
+    $GroupesValides | ForEach-Object { Write-Host "  $_" }
     Write-Host ""
 
-    if (-not $Groupe) {
-        $Groupe = Read-Host "Veuillez spécifier le groupe (Groupe)"
+    if (-not $Group) {
+        $Group = Read-Host "Veuillez spécifier le groupe (Groupe)"
     }
+    do {
+        if ($Group -notin $GroupesValides) {
+            Write-Host "Le groupe '$Group' n'existe pas, veuillez entrer un groupe valide"
+            Write-Host ""
+            Write-Host "`n=== Groupes AD disponibles ===" -ForegroundColor Cyan
+            $GroupesValides | ForEach-Object { Write-Host "  $_" }
+            Write-Host ""
+            $Group = ""
+        }
+    } while (-not $Group)
 
     # --- Step 3: Build user details ---
 
