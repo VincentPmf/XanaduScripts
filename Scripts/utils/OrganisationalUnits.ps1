@@ -85,24 +85,14 @@ function Select-FromList {
     try {
         while ($true) {
             $Host.UI.RawUI.CursorPosition = $menuStartPos
-            $padding = " " * ([Console]::WindowWidth - $lineContent.Length - 1)
-            Write-Host $Options
-            Write-Host $Options.Count
             for ($i = 0; $i -lt $Options.Count; $i++) {
                 $lineContent = if ($i -eq $selectedIndex) {
                     "  -> $($Options[$i])"
                 } else {
                     "      $($Options[$i])"
                 }
-
-                if ($i -eq $selectedIndex) {
-                    Write-Host "  -> " -NoNewline -ForegroundColor DarkGreen
-                    Write-Host "$($Options[$i])$padding" -ForegroundColor DarkGreen
-                }
-
-                else {
-                    Write-Host "     $($Options[$i])" -ForegroundColor White
-                }
+                Write-Host "$lineContent" -NoNewline -ForegroundColor DarkGreen
+                Write-Host "$($Options[$i])" -ForegroundColor DarkGreen
             }
             $key = [Console]::ReadKey($true)
 
