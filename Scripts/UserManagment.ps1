@@ -37,7 +37,7 @@ function Invoke-CreateUser {
     .SYNOPSIS
         Lance le processus de création d'un utilisateur.
     #>
-    New-XanaduUser -Nom $Script:Nom -Prenom $Script:Prenom -Group $Script:Group
+    New-User -Nom $Script:Nom -Prenom $Script:Prenom -Group $Script:Group
 }
 
 function Invoke-UpdateUser {
