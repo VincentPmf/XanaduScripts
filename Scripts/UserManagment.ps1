@@ -12,8 +12,8 @@
 
 
 
-. "$PSScriptRoot\..\UI\Menu.ps1"
-. "$PSScriptRoot\..\UserManagment\newUser.ps1"
+. "$PSScriptRoot\utils\UI\Menu.ps1"
+. "$PSScriptRoot\utils\UserManagment\newUser.ps1"
 
 function Show-MainMenu {
     <#
