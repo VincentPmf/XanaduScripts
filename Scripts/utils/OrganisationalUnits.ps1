@@ -77,7 +77,7 @@ function Select-FromList {
     $cursorVisible = [Console]::CursorVisible
     [Console]::CursorVisible = $false
 
-    Write-Host "`n$Title" -ForegroundColor Cyan
+    Write-Host "`n$Title (q pour quitter)" -ForegroundColor Cyan
     Write-Host ("=" * $Title.Length) -ForegroundColor Cyan
 
     $menuStartPos = $Host.UI.RawUI.CursorPosition
@@ -86,6 +86,8 @@ function Select-FromList {
         while ($true) {
             $Host.UI.RawUI.CursorPosition = $menuStartPos
             $padding = " " * ([Console]::WindowWidth - $lineContent.Length - 1)
+            Write-Host $Options
+            Write-Host $Options.Count
             for ($i = 0; $i -lt $Options.Count; $i++) {
                 $lineContent = if ($i -eq $selectedIndex) {
                     "  -> $($Options[$i])"

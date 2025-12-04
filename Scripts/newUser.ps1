@@ -37,8 +37,6 @@ function New-User {
         Select-Object -ExpandProperty Name |
         Sort-Object
 
-    Show-ADGroups -InputObjects $myGroups
-
     if ($Group -notin $myGroups) {
         $Group = Select-FromList -Title "Sélectionnez un groupe" -Options $myGroups
 
