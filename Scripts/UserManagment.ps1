@@ -126,7 +126,12 @@ function Start-UserManagement {
     #>
     [CmdletBinding()]
     param(
-        [ValidateSet("Create", "Update", "Delete", "List")]
+        [Parameter(ParameterSetName = 'Create', Mandatory = $true)]
+        [Parameter(ParameterSetName = 'Update', Mandatory = $true)]
+        [Parameter(ParameterSetName = 'Delete', Mandatory = $true)]
+        [Parameter(ParameterSetName = 'List', Mandatory = $true)]
+        [Parameter(ParameterSetName = 'ResetPassword', Mandatory = $true)]
+        [ValidateSet("Create", "Update", "Delete", "List", "ResetPassword")]
         [string]$Action,
 
         [Parameter(ParameterSetName = 'Create')]
