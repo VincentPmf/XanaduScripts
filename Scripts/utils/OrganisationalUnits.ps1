@@ -87,14 +87,13 @@ function Select-FromList {
             $Host.UI.RawUI.CursorPosition = $menuStartPos
             for ($i = 0; $i -lt $Options.Count; $i++) {
                 $lineContent = if ($i -eq $selectedIndex) {
-                    "  -> $($Options[$i])"
+                    " -> $($Options[$i])"
                     $color = 'DarkGreen'
                 } else {
-                    "      $($Options[$i])"
-                    $color = 'DarkGreen'
+                    "    $($Options[$i])"
+                    $color = 'White'
                 }
                 Write-Host "$lineContent" -NoNewline -ForegroundColor $color
-                Write-Host "$($Options[$i])" -ForegroundColor $color
             }
             $key = [Console]::ReadKey($true)
 
