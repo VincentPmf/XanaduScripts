@@ -126,19 +126,13 @@ function Start-UserManagement {
     #>
     [CmdletBinding()]
     param(
-        [Parameter(ParameterSetName = 'Create')]
-        [Parameter(ParameterSetName = 'Update')]
-        [Parameter(ParameterSetName = 'Delete')]
-        [Parameter(ParameterSetName = 'List')]
         [ValidateSet("Create", "Update", "Delete", "List")]
         [string]$Action,
 
-        [Parameter(ParameterSetName = 'Create')]
         [string]$Nom,
-        [Parameter(ParameterSetName = 'Create')]
         [string]$Prenom,
-        [Parameter(ParameterSetName = 'Create')]
-        [string]$Group
+        [string]$Group,
+        [string]$SamAccountName
 
     )
 
