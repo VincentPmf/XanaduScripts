@@ -35,7 +35,54 @@ function Invoke-CreateUser {
     .SYNOPSIS
         Lance le processus de création d'un utilisateur.
     #>
-    New-User -Nom $Script:Nom -Prenom $Script:Prenom -Group $Script:Group
+    [CmdletBinding()]
+    param (
+        [string]$Nom,
+        [string]$Prenom,
+        [string]$Group
+    )
+
+    if (-not $Nom) {
+        $Nom = Read-Host "Veuillez spécifier le nom (Nom)"
+    }
+
+    if (-not $Prenom) {
+        $Prenom = Read-Host "Veuillez spécifier le prénom (Prenom)"
+    }
+
+    $DomainDN = (Get-ADDomain).DistinguishedName
+    $SearchBase = "OU=Users,OU=Xanadu,$DomainDN"
+
+    $myGroups = Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope OneLevel |
+        Select-Object -ExpandProperty Name |
+        Sort-Object
+
+    if ($Group -notin $myGroups) {
+        $Group = Select-FromList -Title "Sélectionnez un groupe" -Options $myGroups
+
+        if (-not $Group) {
+            Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
+            return
+        }
+    }
+
+    $SamAccountName = "$($Prenom.ToLower()).$($Nom.ToLower())"
+    $DisplayName    = "$Prenom $Nom"
+    $UserPrincipalName = "$SamAccountName@$((Get-ADDomain).DNSRoot)"
+
+    Write-Host "`n=== User to create ===" -ForegroundColor Green
+    Write-Host "  Display Name : $DisplayName"
+    Write-Host "  SamAccountName : $SamAccountName"
+    Write-Host "  UPN : $UserPrincipalName"
+    Write-Host "  Group : $Group"
+    Write-Host ""
+
+    $confirmation = Read-Host "Confirmez-vous la création de cet utilisateur ? (O/N)"
+    if ($confirmation -ine 'O') {
+        Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
+        return
+    }
+    New-User -Nom $Nom -Prenom $Prenom -Group $Group
 }
 
 function Invoke-UpdateUser {
