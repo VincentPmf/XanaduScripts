@@ -128,6 +128,12 @@ function Start-UserManagement {
     param(
         [ValidateSet("Create", "Update", "Delete", "List")]
         [string]$Action
+
+        [Parameter(ParameterSetName = 'Create')]
+        [string]$Nom,
+        [string]$Prenom,
+        [string]$Group
+
     )
 
     if ($Action) {
