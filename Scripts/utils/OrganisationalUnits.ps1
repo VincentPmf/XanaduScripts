@@ -90,12 +90,12 @@ function Select-FromList {
                 $lineContent = if ($i -eq $selectedIndex) {
                     "  -> $($Options[$i])"
                 } else {
-                    "     $($Options[$i])"
+                    "      $($Options[$i])"
                 }
 
                 if ($i -eq $selectedIndex) {
-                    Write-Host "  -> " -NoNewline -ForegroundColor Green
-                    Write-Host "$($Options[$i])$padding" -ForegroundColor Black -BackgroundColor Green
+                    Write-Host "  -> " -NoNewline -ForegroundColor DarkGreen
+                    Write-Host "$($Options[$i])$padding" -ForegroundColor Black
                 }
 
                 else {
