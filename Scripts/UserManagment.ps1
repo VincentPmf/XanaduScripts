@@ -13,6 +13,7 @@
 
 
 . "$PSScriptRoot\utils\UI\Menu.ps1"
+. "$PSScriptRoot\utils\UserManagment\newUser.ps1"
 
 function Show-MainMenu {
     <#
@@ -36,7 +37,6 @@ function Invoke-CreateUser {
     .SYNOPSIS
         Lance le processus de création d'un utilisateur.
     #>
-    . "$PSScriptRoot\utils\UserManagment\newUser.ps1"
     New-XanaduUser -Nom $Script:Nom -Prenom $Script:Prenom -Group $Script:Group
 }
 
