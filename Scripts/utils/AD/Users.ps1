@@ -36,13 +36,13 @@ function New-XanaduUser {
 
     try {
         # $newUser = New-ADUser `
-        Write-Host = New-ADUser `
-            -Name $DisplayName `
-            -GivenName $Prenom `
-            -Surname $Nom `
-            -SamAccountName $SamAccountName `
-            -UserPrincipalName $UserPrincipalName `
-            -Path $Path `
+        Write-Host New-ADUser `
+            -Name "$DisplayName" `
+            -GivenName "$Prenom" `
+            -Surname "$Nom" `
+            -SamAccountName "$SamAccountName" `
+            -UserPrincipalName "$UserPrincipalName" `
+            -Path "$Path" `
             -AccountPassword (ConvertTo-SecureString "Xanadu$year!" -AsPlainText -Force) `
             -Enabled $true `
             -ChangePasswordAtLogon $true
