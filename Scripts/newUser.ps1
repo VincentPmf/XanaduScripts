@@ -11,7 +11,8 @@
     .\newUser.ps1 -Nom "Doe" -Prenom "John" -Group "Compta"
 #>
 
-. "$PSScriptRoot\utils\OrganisationalUnits.ps1"
+. "$PSScriptRoot\utils\UI\Menu.ps1"
+. "$PSScriptRoot\utils\AD\Users.ps1"
 
 
 function New-User {
@@ -46,7 +47,6 @@ function New-User {
         }
     }
 
-    # --- Step 3: Build user details ---
     $SamAccountName = "$($Prenom.ToLower()).$($Nom.ToLower())"
     $DisplayName    = "$Prenom $Nom"
     $UserPrincipalName = "$SamAccountName@$((Get-ADDomain).DNSRoot)"
@@ -58,6 +58,10 @@ function New-User {
     Write-Host "  Group : $Group"
     Write-Host ""
 
-    # --- Placeholder for actual creation (next step) ---
-    Write-Host "[INFO] User creation logic will be added in the next step." -ForegroundColor Yellow
+    $confirmation = Read-Host "Confirmez-vous la création de cet utilisateur ? (O/N)"
+    if ($confirmation -ine 'O') {
+        Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
+        return
+    }
+    return New-XanaduUser -Nom $Nom -Prenom $Prenom -Group $Group
 }
