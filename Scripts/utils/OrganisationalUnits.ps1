@@ -88,11 +88,13 @@ function Select-FromList {
             for ($i = 0; $i -lt $Options.Count; $i++) {
                 $lineContent = if ($i -eq $selectedIndex) {
                     "  -> $($Options[$i])"
+                    $color = 'DarkGreen'
                 } else {
                     "      $($Options[$i])"
+                    $color = 'DarkGreen'
                 }
-                Write-Host "$lineContent" -NoNewline -ForegroundColor DarkGreen
-                Write-Host "$($Options[$i])" -ForegroundColor DarkGreen
+                Write-Host "$lineContent" -NoNewline -ForegroundColor $color
+                Write-Host "$($Options[$i])" -ForegroundColor $color
             }
             $key = [Console]::ReadKey($true)
 
