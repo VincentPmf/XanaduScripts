@@ -26,7 +26,7 @@ function New-XanaduUser {
     $SamAccountName = "$($Prenom.ToLower()).$($Nom.ToLower())"
     $DisplayName    = "$Prenom $Nom"
     $UserPrincipalName = "$SamAccountName@$((Get-ADDomain).DNSRoot)"
-    $Path              = "OU=$GroupOU,$Path"
+    $Path              = "OU=$Group,$Path"
 
     $existingUser = Get-ADUser -Filter { SamAccountName -eq $SamAccountName } -ErrorAction SilentlyContinue
     if ($existingUser) {
@@ -37,8 +37,8 @@ function New-XanaduUser {
     $year = Get-Date -Format "yyyy"
 
     try {
-        # $newUser = New-ADUser `
-        Write-Host New-ADUser `
+        $newUser = New-ADUser `
+        # Write-Host New-ADUser `
             -Name $DisplayName `
             -GivenName $Prenom `
             -Surname $Nom `
