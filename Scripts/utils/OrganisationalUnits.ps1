@@ -93,7 +93,7 @@ function Select-FromList {
                     "    $($Options[$i])"
                     $color = 'White'
                 }
-                Write-Host "$lineContent" -NoNewline -ForegroundColor $color
+                Write-Host "$lineContent" -ForegroundColor $color
             }
             $key = [Console]::ReadKey($true)
 
