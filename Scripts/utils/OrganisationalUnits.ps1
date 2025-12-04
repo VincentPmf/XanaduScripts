@@ -99,7 +99,7 @@ function Select-FromList {
                 }
 
                 else {
-                    Write-Host "    $($Options[$i])" -ForegroundColor White
+                    Write-Host "     $($Options[$i])" -ForegroundColor White
                 }
             }
             $key = [Console]::ReadKey($true)
