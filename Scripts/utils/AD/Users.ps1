@@ -37,8 +37,8 @@ function New-XanaduUser {
     $year = Get-Date -Format "yyyy"
 
     try {
-        $newUser = New-ADUser `
         # Write-Host New-ADUser `
+        $newUser = New-ADUser `
             -Name $DisplayName `
             -GivenName $Prenom `
             -Surname $Nom `
