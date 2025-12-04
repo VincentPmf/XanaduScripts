@@ -11,8 +11,8 @@
     .\newUser.ps1 -Nom "Doe" -Prenom "John" -Group "Compta"
 #>
 
-. "$PSScriptRoot\utils\UI\Menu.ps1"
-. "$PSScriptRoot\utils\AD\Users.ps1"
+. "..\UI\Menu.ps1"
+. "..\AD\Users.ps1"
 
 
 function New-User {

@@ -10,10 +10,8 @@
     .\UserManagement.ps1 -Action "Create" -Nom "Doe" -Prenom "John"
 #>
 
-
-
 . "$PSScriptRoot\utils\UI\Menu.ps1"
-. "$PSScriptRoot\utils\UserManagment\newUser.ps1"
+. "$PSScriptRoot\utils\AD\Users.ps1"
 
 function Show-MainMenu {
     <#
@@ -79,7 +77,7 @@ function Start-UserManagement {
     .EXAMPLE
         Start-UserManagement
     #>
-        [CmdletBinding()]
+    [CmdletBinding()]
     param(
         [ValidateSet("Create", "Update", "Delete", "List")]
         [string]$Action
