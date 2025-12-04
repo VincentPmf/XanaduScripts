@@ -81,7 +81,7 @@ function Select-FromList {
     Write-Host ("=" * $Title.Length) -ForegroundColor Cyan
 
     $menuStartPos = $Host.UI.RawUI.GetCursorPosition.PSObject.Properties.Value
-    Write-Host "Test $menuStartPos"
+    Write-Host "Test $menuStartPos test"
 
     # try {
     #     while ($true) {
