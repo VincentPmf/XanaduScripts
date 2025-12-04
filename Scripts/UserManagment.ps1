@@ -130,13 +130,14 @@ function Start-UserManagement {
         [Parameter(ParameterSetName = 'Update', Mandatory = $true)]
         [Parameter(ParameterSetName = 'Delete', Mandatory = $true)]
         [Parameter(ParameterSetName = 'List', Mandatory = $true)]
-        [Parameter(ParameterSetName = 'ResetPassword', Mandatory = $true)]
-        [ValidateSet("Create", "Update", "Delete", "List", "ResetPassword")]
+        [ValidateSet("Create", "Update", "Delete", "List")]
         [string]$Action,
 
         [Parameter(ParameterSetName = 'Create')]
         [string]$Nom,
+        [Parameter(ParameterSetName = 'Create')]
         [string]$Prenom,
+        [Parameter(ParameterSetName = 'Create')]
         [string]$Group
 
     )
