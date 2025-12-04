@@ -63,5 +63,5 @@ function New-User {
         Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
         return
     }
-    return New-XanaduUser -Nom $Nom -Prenom $Prenom -Group $Group
+    return New-XanaduUser -Nom $Nom -Prenom $Prenom -Group $Group -Path $SearchBase
 }

@@ -19,12 +19,14 @@ function New-XanaduUser {
         [string]$Prenom,
         [Parameter(Mandatory=$true)]
         [string]$Group
+        [Parameter(Mandatory=$true)]
+        [string]$Path
     )
 
     $SamAccountName = "$($Prenom.ToLower()).$($Nom.ToLower())"
     $DisplayName    = "$Prenom $Nom"
     $UserPrincipalName = "$SamAccountName@$((Get-ADDomain).DNSRoot)"
-    $Path              = "OU=$GroupOU,$($Global:XanaduConfig.UsersOU),$($Global:XanaduConfig.DomainDN)"
+    $Path              = "OU=$GroupOU,$Path"
 
     $existingUser = Get-ADUser -Filter { SamAccountName -eq $SamAccountName } -ErrorAction SilentlyContinue
     if ($existingUser) {
@@ -37,12 +39,12 @@ function New-XanaduUser {
     try {
         # $newUser = New-ADUser `
         Write-Host New-ADUser `
-            -Name "$DisplayName" `
-            -GivenName "$Prenom" `
-            -Surname "$Nom" `
-            -SamAccountName "$SamAccountName" `
-            -UserPrincipalName "$UserPrincipalName" `
-            -Path "$Path" `
+            -Name $DisplayName `
+            -GivenName $Prenom `
+            -Surname $Nom `
+            -SamAccountName $SamAccountName `
+            -UserPrincipalName $UserPrincipalName `
+            -Path $Path `
             -AccountPassword (ConvertTo-SecureString "Xanadu$year!" -AsPlainText -Force) `
             -Enabled $true `
             -ChangePasswordAtLogon $true
