@@ -95,7 +95,7 @@ function Select-FromList {
 
                 if ($i -eq $selectedIndex) {
                     Write-Host "  -> " -NoNewline -ForegroundColor DarkGreen
-                    Write-Host "$($Options[$i])$padding" -ForegroundColor Black
+                    Write-Host "$($Options[$i])$padding" -ForegroundColor DarkGreen
                 }
 
                 else {
