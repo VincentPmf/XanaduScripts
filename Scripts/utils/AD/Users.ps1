@@ -18,7 +18,7 @@ function New-XanaduUser {
         [Parameter(Mandatory=$true)]
         [string]$Prenom,
         [Parameter(Mandatory=$true)]
-        [string]$Group
+        [string]$Group,
         [Parameter(Mandatory=$true)]
         [string]$Path
     )
