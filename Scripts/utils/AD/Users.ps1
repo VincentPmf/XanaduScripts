@@ -35,15 +35,15 @@ function New-XanaduUser {
     $year = Get-Date -Format "yyyy"
 
     try {
-        $newUser = New-ADUser `
-            -Name $DisplayName `
-            -GivenName $Prenom `
-            -Surname $Nom `
-            -SamAccountName $SamAccountName `
-            -UserPrincipalName $UserPrincipalName `
-            -Path $Path `
-            -AccountPassword (ConvertTo-SecureString "Xanadu$year!" -AsPlainText -Force) `
-            -Enabled $true `
+        $newUser = New-ADUser
+            -Name $DisplayName
+            -GivenName $Prenom
+            -Surname $Nom
+            -SamAccountName $SamAccountName
+            -UserPrincipalName $UserPrincipalName
+            -Path $Path
+            -AccountPassword (ConvertTo-SecureString "Xanadu$year!" -AsPlainText -Force)
+            -Enabled $true
             -ChangePasswordAtLogon $true
 
         Write-Host "Utilisateur '$DisplayName' créé avec succès dans le groupe '$Group'." -ForegroundColor Green
