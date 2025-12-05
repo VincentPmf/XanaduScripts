@@ -11,6 +11,7 @@
 #>
 
 
+
 function Show-MainMenu {
     <#
     .SYNOPSIS
@@ -133,6 +134,8 @@ function Start-UserManagement {
         [string]$SamAccountName
 
     )
+
+    Write-Host "[DEBUG] Action='$Action' Nom='$Nom' Prenom='$Prenom'"
 
     if ($Action) {
         switch ($Action) {
