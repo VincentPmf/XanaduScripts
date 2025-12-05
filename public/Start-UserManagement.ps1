@@ -136,7 +136,7 @@ function Start-UserManagement {
 
     if ($Action) {
         switch ($Action) {
-            "Create" { Invoke-CreateUser }
+            "Create" { Invoke-CreateUser -Nom $Nom -Prenom $Prenom -Group $Group }
             "Update" { Invoke-UpdateUser }
             "Delete" { Invoke-DeleteUser }
             "List"   { Invoke-ListUsers }
