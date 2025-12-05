@@ -137,35 +137,35 @@ function Start-UserManagement {
 
     Write-Host "[DEBUG] Action='$Action' Nom='$Nom' Prenom='$Prenom'"
 
-    if ($Action) {
-        switch ($Action) {
-            "Create" { Invoke-CreateUser -Nom $Nom -Prenom $Prenom -Group $Group }
-            "Update" { Invoke-UpdateUser }
-            "Delete" { Invoke-DeleteUser }
-            "List"   { Invoke-ListUsers }
-        }
-        return
-    }
+    # if ($Action) {
+    #     switch ($Action) {
+    #         "Create" { Invoke-CreateUser -Nom $Nom -Prenom $Prenom -Group $Group }
+    #         "Update" { Invoke-UpdateUser }
+    #         "Delete" { Invoke-DeleteUser }
+    #         "List"   { Invoke-ListUsers }
+    #     }
+    #     return
+    # }
 
-    $continue = $true
-    while ($continue) {
-        $choice = Show-MainMenu
+    # $continue = $true
+    # while ($continue) {
+    #     $choice = Show-MainMenu
 
-        switch ($choice) {
-            "Créer un utilisateur"    { Invoke-CreateUser }
-            "Modifier un utilisateur" { Invoke-UpdateUser }
-            "Supprimer un utilisateur"{ Invoke-DeleteUser }
-            "Lister les utilisateurs" { Invoke-ListUsers }
-            "Réinitialiser le mot de passe utilisateur" { Invoke-ResetUserPassword }
-            "Quitter"                 { $continue = $false }
-            $null                     { $continue = $false }  # Échap
-        }
+    #     switch ($choice) {
+    #         "Créer un utilisateur"    { Invoke-CreateUser }
+    #         "Modifier un utilisateur" { Invoke-UpdateUser }
+    #         "Supprimer un utilisateur"{ Invoke-DeleteUser }
+    #         "Lister les utilisateurs" { Invoke-ListUsers }
+    #         "Réinitialiser le mot de passe utilisateur" { Invoke-ResetUserPassword }
+    #         "Quitter"                 { $continue = $false }
+    #         $null                     { $continue = $false }  # Échap
+    #     }
 
-        if ($continue -and $choice -ne "Quitter") {
-            Write-Host ""
-            Read-Host "Appuyez sur Entrée pour continuer"
-        }
-    }
+    #     if ($continue -and $choice -ne "Quitter") {
+    #         Write-Host ""
+    #         Read-Host "Appuyez sur Entrée pour continuer"
+    #     }
+    # }
 
-    Write-Host "Au revoir !" -ForegroundColor Cyan
+    # Write-Host "Au revoir !" -ForegroundColor Cyan
 }
