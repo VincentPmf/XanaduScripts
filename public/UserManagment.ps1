@@ -10,8 +10,6 @@
     .\UserManagement.ps1 -Action "Create" -Nom "Doe" -Prenom "John"
 #>
 
-. "$PSScriptRoot\utils\UI\Menu.ps1"
-. "$PSScriptRoot\utils\AD\Users.ps1"
 
 function Show-MainMenu {
     <#
