@@ -81,6 +81,12 @@ function Select-FromList {
                     Write-Host ""
                     return $null
                 }
+                'q' {
+                    $endPos = [System.Management.Automation.Host.Coordinates]::new(0, $menuStartPos.Y + $Options.Count)
+                    $Host.UI.RawUI.CursorPosition = $endPos
+                    Write-Host ""
+                    return $'Quitter'
+                }
             }
         }
     }
