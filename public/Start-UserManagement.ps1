@@ -59,7 +59,7 @@ function Invoke-CreateUser {
     if ($Group -notin $myGroups) {
         $Group = Select-FromList -Title "Sélectionnez un groupe" -Options $myGroups
 
-        if (-not $Group) {
+        if (-not $Group -or $Group -eq "Quitter") {
             Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
             return
         }
