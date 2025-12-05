@@ -104,7 +104,7 @@ function Invoke-UpdateUser {
                 Name        = $display
                 SamAccountName = $_.SamAccountName
             }
-        } | Sort-Object Name | ForEach-Object { $_.Name } |
+        } | Sort-Object Name | ForEach-Object { $_.Name } 
         # $selected = Select-FromList -Title "Sélectionnez un utilisateur à modifier"
     }
 }
