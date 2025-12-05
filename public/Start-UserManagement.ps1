@@ -89,7 +89,24 @@ function Invoke-UpdateUser {
     .SYNOPSIS
         Lance le processus de modification d'un utilisateur.
     #>
-    Write-Host "`n--- Fonction Update à implémenter ---`n" -ForegroundColor Yellow
+    [CmdletBinding()]
+    param (
+        [string]$Nom,
+        [string]$Prenom,
+        [string]$SamAccountName
+    )
+    $user = $null
+
+    if (-not $SamAccountName) {
+        Get-ADUser -Filter * | ForEach-Object {
+            $display = "$($_.SamAccountName) - $($_.GivenName) $($_.Surname)"
+            [PSCustomObject]@{
+                Name        = $display
+                SamAccountName = $_.SamAccountName
+            }
+        } | Sort-Object Name | ForEach-Object { $_.Name } |
+        # $selected = Select-FromList -Title "Sélectionnez un utilisateur à modifier"
+    }
 }
 
 function Invoke-DeleteUser {
