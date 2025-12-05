@@ -104,8 +104,9 @@ function Invoke-UpdateUser {
                 Name        = $display
                 SamAccountName = $_.SamAccountName
             }
-        } | Sort-Object Name | ForEach-Object { $_.Name } 
-        # $selected = Select-FromList -Title "Sélectionnez un utilisateur à modifier"
+        } | Sort-Object Name | ForEach-Object { $_.Name }
+        $selected = Select-FromList -Title "Sélectionnez un utilisateur à modifier"
+        Write-host "Sélectionné : $selected"
     }
 }
 
@@ -151,8 +152,6 @@ function Start-UserManagement {
         [string]$SamAccountName
 
     )
-
-    Write-Host "[DEBUG] Action='$Action' Nom='$Nom' Prenom='$Prenom'"
 
     if ($Action) {
         switch ($Action) {
