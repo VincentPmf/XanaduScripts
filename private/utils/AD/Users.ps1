@@ -162,3 +162,21 @@ function Select-XanaduUser {
     return $null
 }
 
+function Update-UserName {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Nom,
+        [Parameter(Mandatory=$true)]
+        [string]$SamAccountName
+    )
+
+    try {
+        Set-ADUser -Identity $SamAccountName -Surname $Nom
+        Write-Host "Le nom de l'utilisateur '$SamAccountName' a été mis à jour avec succès en '$Nom'." -ForegroundColor Green
+    }
+    catch {
+        Write-Host "Erreur lors de la mise à jour du nom de l'utilisateur '$SamAccountName': $_" -ForegroundColor Red
+    }
+}
+

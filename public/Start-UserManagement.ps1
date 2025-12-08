@@ -159,12 +159,17 @@ function Invoke-UpdateUser {
         "Activer/Désactiver le compte"
     )
 
-    $attributeChoice = Select-FromList -Title "Sélectionnez l'attribut à modifier" -Options $attributesToUpdate
-    if (-not $attributeChoice) {
-        Write-Host "Opération annulée." -ForegroundColor Yellow
-        return
+    $continue = $true
+    while ($continue) {
+        $attributeChoice = Select-FromList -Title "Sélectionnez l'attribut à modifier" -Options $attributesToUpdate
+        switch ($attributeChoice) {
+            "Nom" {
+                Write-Host "`nMise à jour du nom de $($user.Surname)" -ForegroundColor Cyan
+                Update-UserName -Nom (Read-Host "Nouveau nom") `
+                -SamAccountName $user.SamAccountName
+            }
+        }
     }
-
 }
 
 function Invoke-DeleteUser {
