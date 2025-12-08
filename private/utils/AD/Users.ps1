@@ -216,10 +216,10 @@ function Show-XanaduUsersTree {
 
         Write-Host ""
         Write-Host "USERS" -ForegroundColor Cyan
-        Write-Host "  │" -ForegroundColor DarkGray
+        Write-Host "  \│" -ForegroundColor DarkGray
     }
 
-    $pipe = "│"
+    $pipe = "\│"
     $branch = "L"
     $space = " "
 
