@@ -84,7 +84,7 @@ function Select-XanaduUser {
 
     $usersInOU = Get-ADUser -Filter * -SearchBase $SearchBase -SearchScope OneLevel -Properties DisplayName, SamAccountName -ErrorAction SilentlyContinue | Sort-Object DisplayName
 
-    $menuOptions = @()
+    $options = @()
 
     $DomainDN = (Get-ADDomain).DistinguishedName
     $RootOU = "OU=Users,OU=Xanadu,$DomainDN"
@@ -103,7 +103,6 @@ function Select-XanaduUser {
 
     if ($options.Count -eq 0 -or ($options.Count -eq 1 -and $options[0] -eq "[..] Retour")) {
         if ($options.Count -eq 1) {
-            # Seulement "Retour" disponible, pas d'utilisateurs ni de sous-OU
             Write-Host "Aucun utilisateur ni sous-groupe dans '$currentOUName'." -ForegroundColor Yellow
         } else {
             Write-Host "Aucun élément trouvé." -ForegroundColor Red
