@@ -206,8 +206,9 @@ function Invoke-UpdateUser {
                     try {
                         $currentOU = ($user.DistinguishedName -split ',')[1..($user.DistinguishedName.Length)] -join ','
                         $newOU = "OU=$newGroup,$currentOU"
-                        Move-ADObject -Identity $user.DistinguishedName -TargetPath $newOU
-                        Write-Host "Groupe mis à jour avec succès en '$newGroup'." -ForegroundColor Green
+                        Write-Host "Old OU: $currentOU, New OU: $newOU" -ForegroundColor Yellow
+                        # Move-ADObject -Identity $user.DistinguishedName -TargetPath $newOU
+                        # Write-Host "Groupe mis à jour avec succès en '$newGroup'." -ForegroundColor Green
                     } catch {
                         Write-Host "Erreur lors de la mise à jour du groupe : $_" -Foreground Red
                     }
