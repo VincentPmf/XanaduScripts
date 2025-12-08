@@ -94,3 +94,4 @@ function Select-FromList {
         [Console]::CursorVisible = $cursorVisible
     }
 }
+

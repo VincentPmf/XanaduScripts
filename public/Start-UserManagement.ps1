@@ -119,47 +119,11 @@ function Invoke-UpdateUser {
 
     if (-not $user) {
         Write-Host "Utilisateur non trouvé." -ForegroundColor Red
-                $DomainDN = (Get-ADDomain).DistinguishedName
-        $SearchBase = "OU=Users,OU=Xanadu,$DomainDN"
-
-        $myGroups = Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope OneLevel |
-            Select-Object -ExpandProperty Name |
-            Sort-Object
-
-        if ($myGroups.Count -eq 0) {
-            Write-Host "Aucun groupe trouvé dans l'OU Users." -ForegroundColor Red
+        $user = Select-XanaduUser
+        if (-not $user) {
+            Write-Host "Opération annulée." -ForegroundColor Yellow
             return
         }
-
-        $selectedGroup = Select-FromList -Title "Sélectionnez un groupe" -Options $myGroups
-
-        if (-not $selectedGroup -or $selectedGroup -eq "Quitter") {
-            Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
-            return
-        }
-
-        $GroupOU = "OU=$selectedGroup,$SearchBase"
-        $usersInGroup = Get-ADUser -Filter * -SearchBase $GroupOU -SearchScope Subtree -Properties DisplayName, SamAccountName |
-            Sort-Object DisplayName
-
-        if ($usersInGroup.Count -eq 0) {
-            Write-Host "Aucun utilisateur trouvé dans le groupe '$selectedGroup'." -ForegroundColor Red
-            return
-        }
-
-        $userOptions = $usersInGroup | ForEach-Object {
-            "$($_.DisplayName) ($($_.SamAccountName))"
-        }
-
-        $selectedUserOption = Select-FromList -Title "Sélectionnez un utilisateur dans '$selectedGroup'" -Options $userOptions
-
-        if (-not $selectedUserOption -or $selectedUserOption -eq "Quitter") {
-            Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
-            return
-        }
-
-        $selectedSam = ($selectedUserOption -split '\(')[-1].TrimEnd(')')
-        $user = Get-ADUser -Filter "SamAccountName -eq '$selectedSam'" -Properties *
     }
 
     if ($user -is [array]) {
