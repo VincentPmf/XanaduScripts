@@ -81,7 +81,10 @@ function Invoke-CreateUser {
         Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
         return
     }
-    New-XanaduUser -Nom $Nom -Prenom $Prenom -Group $Group -Path $baseOU
+    New-XanaduUser -Nom $Nom `
+        -Prenom $Prenom `
+        -Group $Group `
+        -Path "OU=Users,OU=Xanadu,$((Get-ADDomain).DistinguishedName)"
 }
 
 function Invoke-UpdateUser {
