@@ -193,7 +193,19 @@ function Invoke-DeleteUser {
     .SYNOPSIS
         Lance le processus de suppression d'un utilisateur.
     #>
-    Write-Host "`n--- Fonction Delete à implémenter ---`n" -ForegroundColor Yellow
+
+    $user = Select-XanaduUser
+    if (-not $user) {
+        Write-Host "Opération annulée." -ForegroundColor Yellow
+        return
+    }
+    $confirmation = Read-Host "Confirmez-vous la suppression de l'utilisateur '$($user.DisplayName)' ? (O/N)"
+    if ($confirmation -ine 'O') {
+        Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
+        return
+    }
+    Read-Host ""
+    Remove-User -SamAccountName $user.SamAccountName
 }
 
 function Invoke-ListUsers {
