@@ -80,24 +80,9 @@ function Select-XanaduUser {
 
     $currentOUName = ($SearchBase -split ',')[0] -replace '^OU=', ''
 
-    $subOUs =
-        Get-ADOrganizationalUnit
-            -Filter *
-            -SearchBase $SearchBase
-            -SearchScope OneLevel
-            -ErrorAction SilentlyContinue |
-        Select-Object
-                -ExpandProperty Name |
-        Sort-Object
+    $subOUs = Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope OneLevel -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name | Sort-Object
 
-    $usersInOU =
-        Get-ADUser
-            -Filter *
-            -SearchBase $SearchBase
-            -SearchScope OneLevel
-            -Properties DisplayName, SamAccountName
-            -ErrorAction SilentlyContinue |
-        Sort-Object DisplayName
+    $usersInOU = Get-ADUser -Filter * -SearchBase $SearchBase -SearchScope OneLevel -Properties DisplayName, SamAccountName -ErrorAction SilentlyContinue | Sort-Object DisplayName
 
     $menuOptions = @()
 

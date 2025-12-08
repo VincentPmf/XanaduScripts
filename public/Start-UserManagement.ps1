@@ -120,7 +120,7 @@ function Invoke-UpdateUser {
     }
 
     if (-not $user) {
-        Write-Host "Utilisateur non trouvé." -ForegroundColor Red
+        Write-Host "Sélection manuelle." -ForegroundColor Yellow
         $user = Select-XanaduUser
         if (-not $user) {
             Write-Host "Opération annulée." -ForegroundColor Yellow
