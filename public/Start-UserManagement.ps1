@@ -240,7 +240,7 @@ function Invoke-DeleteUser {
         return
     }
     Read-Host ""
-    Remove-User -SamAccountName $user.SamAccountName
+    Remove-ADUser -SamAccountName $user.SamAccountName
 }
 
 function Invoke-ListUsers {
