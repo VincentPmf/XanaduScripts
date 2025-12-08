@@ -132,6 +132,10 @@ function Select-XanaduUser {
     $selection = Select-FromList -Title "=== $currentOUName ===" -Options $options
 
     if ($selection -eq "[..] Retour" -or $selection -eq "Quitter") {
+        if ($SearchBase -e $RootOU) {
+            Write-Host "Annulation" -ForegroundColor Yellow
+            return $null
+        }
         $parentOU = ($SearchBase -split ',', 2)[1]
         return Select-XanaduUser -SearchBase $parentOU
     }
