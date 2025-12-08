@@ -101,7 +101,7 @@ function Invoke-UpdateUser {
         $user = Get-ADUser -Filter "SamAccountName -eq '$SamAccountName'" -Properties * -ErrorAction SilentlyContinue
     }
 
-    if (-not $user -and ($Nom -or $Prenom)) {
+    if (-not $user -and (-not $Nom -or -not $Prenom)) {
         if (-not $Nom) {
             $Nom = Read-Host "Nom de l'utilisateur à modifier"
         }
