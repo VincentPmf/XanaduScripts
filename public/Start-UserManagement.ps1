@@ -165,15 +165,23 @@ function Invoke-UpdateUser {
         switch ($attributeChoice) {
             "Nom" {
                 Write-Host "`nMise à jour du nom de $($user.Surname)" -ForegroundColor Cyan
-                Update-UserName -Nom (Read-Host "Nouveau nom") `
-                    -Prenom $user.GivenName `
+                $newNom = Read-HostWithEscape -Prompt "Nouveau nom (Esc pour annuler)"
+                if (-not $newNom) {
+                    Write-Host "Modification annulée." -ForegroundColor Yellow
+                } else {
+                    Update-UserName -Nom $newNom -Prenom $user.GivenName `
                     -SamAccountName $user.SamAccountName
+                }
             }
             "Prénom" {
                 Write-Host "`nMise à jour du prénom de $($user.Surname)" -ForegroundColor Cyan
-                Update-UserName -Nom $user.Surname `
-                    -Prenom (Read-Host "Nouveau prénom") `
+                $newPrenom = Read-HostWithEscape -Prompt "Nouveau prénom (Esc pour annuler)"
+                if (-not $newPrenom) {
+                    Write-Host "Modification annulée." -ForegroundColor Yellow
+                } else {
+                    Update-UserName -Nom $user.Surname -Prenom $newPrenom `
                     -SamAccountName $user.SamAccountName
+                }
             }
             "Quitter" {$continue = $false}
         }
