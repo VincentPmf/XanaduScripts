@@ -273,16 +273,23 @@ function Invoke-ResetUserPassword {
     [CmdletBinding()]
 
     $user = Select-XanaduUser
+    if (-not $user) {
+        Write-Host "Opération annulée." -ForegroundColor Yellow
+        return
+    }
 
-    Set-ADAccountPassword -Identity $user.SamAccountName`
-        -Reset `
-        -NewPassword (
-            ConvertTo-SecureString `
-            -AsPlainText "Xanadu$(Get-Date -Format 'yyyy')!" `
-            -Force `
-            -ChangePasswordAtLogon
-        )
+    try {
+        $newPassword = ConvertTo-SecureString -AsPlainText "Xanadu$(Get-Date -Format 'yyyy')!" -Force
 
+        Get-ADUser -Identity $user.SamAccountName |
+            Set-ADAccountPassword -Reset -NewPassword $newPassword -PassThru |
+            Set-ADUser -ChangePasswordAtLogon $true
+
+        Write-Host "Mot de passe réinitialisé pour '$($user.DisplayName)'." -ForegroundColor Green
+    } catch {
+        Write-Host "Erreur lors de la réinitialisation du mot de passe : $_" -ForegroundColor Red
+        return
+    }
 }
 
 function Start-UserManagement {
