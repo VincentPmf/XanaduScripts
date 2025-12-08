@@ -210,56 +210,60 @@ function Show-XanaduUsersTree {
         [int]$Indent = 0
     )
 
+    # Caracteres box-drawing via codes ASCII/Unicode
+    $verticalLine = [char]0x2502   # │
+    $branchEnd    = [char]0x2514   # └
+    $branchTee    = [char]0x251C   # ├
+    $horizontal   = [char]0x2500   # ─
+
     if (-not $SearchBase) {
         $DomainDN = (Get-ADDomain).DistinguishedName
         $SearchBase = "OU=Users,OU=Xanadu,$DomainDN"
 
         Write-Host ""
         Write-Host "USERS" -ForegroundColor Cyan
-        Write-Host "  \│" -ForegroundColor DarkGray
     }
 
-    $pipe = "\│"
-    $branch = "L"
-    $space = " "
-
-    $prefix = "$space" * ($Indent * 4)
-
-    $subOUs = Get-ADOrganizationalUnit -Filter 'Name -like "*"' -SearchBase $SearchBase -SearchScope OneLevel -ErrorAction SilentlyContinue |
-        Sort-Object Name
-
-    $users = Get-ADUser -Filter 'Name -like "*"' -SearchBase $SearchBase -SearchScope OneLevel -Properties DisplayName, GivenName, Surname -ErrorAction SilentlyContinue |
-        Sort-Object Surname, GivenName
-
-    $totalItems = @($subOUs).Count + @($users).Count
-    $currentIndex = 0
-
-    foreach ($ou in $subOUs) {
-        $currentIndex++
-        $isLast = ($currentIndex -eq $totalItems)
-
-        Write-Host "$prefix  $branch " -ForegroundColor DarkGray -NoNewline
-        Write-Host "$($ou.Name)" -ForegroundColor Yellow
-
-        if (-not $isLast) {
-            Show-XanaduUsersTree -SearchBase $ou.DistinguishedName -Indent ($Indent + 1)
-        } else {
-            Show-XanaduUsersTree -SearchBase $ou.DistinguishedName -Indent ($Indent + 1)
-        }
+    $prefix = "" * ($Indent * 4)
+    for ($i = 0; $i -lt $Indent; $i++) {
+        $prefix += "    "
     }
 
-    foreach ($user in $users) {
-        $currentIndex++
-        $displayName = if ($user.GivenName -and $user.Surname) {
-            "$($user.GivenName) $($user.Surname.ToUpper())"
-        } elseif ($user.DisplayName) {
-            $user.DisplayName
-        } else {
-            $user.Name
-        }
+    $subOUs = @(Get-ADOrganizationalUnit -Filter 'Name -like "*"' -SearchBase $SearchBase -SearchScope OneLevel -ErrorAction SilentlyContinue |
+    Sort-Object Name)
 
-        Write-Host "$prefix  $branch " -ForegroundColor DarkGray -NoNewline
-        Write-Host "$displayName" -ForegroundColor White
+    $users = @(Get-ADUser -Filter 'Name -like "*"' -SearchBase $SearchBase -SearchScope OneLevel -Properties DisplayName, GivenName, Surname -ErrorAction SilentlyContinue |
+        Sort-Object Surname, GivenName)
+
+    $allItems = @()
+    foreach ($ou in $subOUs) { $allItems += @{ Type = "OU"; Item = $ou } }
+    foreach ($u in $users) { $allItems += @{ Type = "User"; Item = $u } }
+
+    for ($i = 0; $i -lt $allItems.Count; $i++) {
+        $isLastItem = ($i -eq $allItems.Count - 1)
+        $connector = if ($isLastItem) { $branchEnd } else { $branchTee }
+
+        if ($allItems[$i].Type -eq "OU") {
+            $ou = $allItems[$i].Item
+            Write-Host "$prefix $connector$horizontal$horizontal " -ForegroundColor DarkGray -NoNewline
+            Write-Host "$($ou.Name)" -ForegroundColor Yellow
+
+            $newPrefix = if ($isLastItem) { "$prefix    " } else { "$prefix $verticalLine   " }
+            Show-XanaduUsersTree -SearchBase $ou.DistinguishedName -Indent ($Indent + 1) -IsLast $isLastItem
+        }
+        else {
+            $user = $allItems[$i].Item
+            $displayName = if ($user.GivenName -and $user.Surname) {
+                "$($user.GivenName) $($user.Surname.ToUpper())"
+            } elseif ($user.DisplayName) {
+                $user.DisplayName
+            } else {
+                $user.Name
+            }
+
+            Write-Host "$prefix $connector$horizontal$horizontal " -ForegroundColor DarkGray -NoNewline
+            Write-Host "$displayName" -ForegroundColor White
+        }
     }
 }
 
