@@ -107,12 +107,11 @@ function Select-XanaduUser {
 
     $DomainDN = (Get-ADDomain).DistinguishedName
     $RootOU = "OU=Users,OU=Xanadu,$DomainDN"
-    if ($SearchBase -ne $RootOU) {
-        $options += "[..] Retour"
-    }
-
     foreach ($ou in $subOUs) {
         $options += "[OU] $ou"
+    }
+    if ($SearchBase -ne $RootOU) {
+        $options += "[..] Retour"
     }
 
     foreach ($user in $usersInOU) {

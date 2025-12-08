@@ -239,7 +239,7 @@ function Invoke-DeleteUser {
         Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
         return
     }
-    Remove-ADUser -SamAccountName $user.SamAccountName
+    Remove-ADUser -Identity $user.SamAccountName
 }
 
 function Invoke-ListUsers {
