@@ -168,11 +168,13 @@ function Update-UserName {
         [Parameter(Mandatory=$true)]
         [string]$Nom,
         [Parameter(Mandatory=$true)]
+        [string]$Prenom,
+        [Parameter(Mandatory=$true)]
         [string]$SamAccountName
     )
 
     try {
-        Set-ADUser -Identity $SamAccountName -Surname $Nom
+        Set-ADUser -Identity $SamAccountName -Surname $Nom -Name "$Prenom $Nom"
         Write-Host "Le nom de l'utilisateur '$SamAccountName' a été mis à jour avec succès en '$Nom'." -ForegroundColor Green
     }
     catch {
