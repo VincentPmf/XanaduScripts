@@ -217,6 +217,16 @@ function Invoke-UpdateUser {
                     }
                 }
             }
+            "Activer/Désactiver le compte" {
+                $newState = -not $user.Enabled
+                try {
+                    Set-ADUser -Identity $user.SamAccountName -Enabled $newState -ErrorAction Stop
+                    $stateText = if ($newState) { "activé" } else { "désactivé" }
+                    Write-Host "Le compte utilisateur a été $stateText avec succès." -ForegroundColor Green
+                } catch {
+                    Write-Host "Erreur lors de la mise à jour de l'état du compte : $_" -ForegroundColor Red
+                }
+            }
 
             "Quitter" {$continue = $false}
         }

@@ -110,13 +110,12 @@ function Select-XanaduUser {
     foreach ($ou in $subOUs) {
         $options += "[OU] $ou"
     }
-    if ($SearchBase -ne $RootOU) {
-        $options += "[..] Retour"
-    }
-
     foreach ($user in $usersInOU) {
         $displayText = if ($user.DisplayName) { $user.DisplayName } else { $user.Name }
         $options += "[User] $displayText ($($user.SamAccountName))"
+    }
+    if ($SearchBase -ne $RootOU) {
+        $options += "[..] Retour"
     }
 
     if ($options.Count -eq 0 -or ($options.Count -eq 1 -and $options[0] -eq "[..] Retour")) {
