@@ -158,9 +158,14 @@ function Invoke-UpdateUser {
         "Nom",
         "Prénom",
         "Email",
-        "Groupe",
-        "Activer/Désactiver le compte"
+        "Groupe"
     )
+    if ($user.Enabled) {
+        $attributesToUpdate += "Désactiver le compte"
+    } else {
+        $attributesToUpdate += "Activer le compte"
+    }
+    $attributesToUpdate += "Quitter"
 
     $continue = $true
     while ($continue) {
@@ -257,7 +262,7 @@ function Invoke-ListUsers {
     .SYNOPSIS
         Lance le processus de listing des utilisateurs.
     #>
-    Write-Host "`n--- Fonction List à implémenter ---`n" -ForegroundColor Yellow
+    Show-XanaduUsersTree
 }
 
 function Invoke-ResetUserPassword {

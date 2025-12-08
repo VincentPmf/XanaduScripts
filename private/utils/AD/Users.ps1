@@ -195,4 +195,72 @@ function Update-UserName {
     }
 }
 
+function Show-XanaduUsersTree {
+    <#
+    .SYNOPSIS
+        Affiche l'arborescence des utilisateurs AD sous forme d'arbre.
+    .DESCRIPTION
+        Parcourt récursivement les OU et affiche les utilisateurs dans un format arbre.
+    .EXAMPLE
+        Show-XanaduUsersTree
+    #>
+    [CmdletBinding()]
+    param(
+        [string]$SearchBase,
+        [int]$Indent = 0
+    )
+
+    if (-not $SearchBase) {
+        $DomainDN = (Get-ADDomain).DistinguishedName
+        $SearchBase = "OU=Users,OU=Xanadu,$DomainDN"
+
+        Write-Host ""
+        Write-Host "USERS" -ForegroundColor Cyan
+        Write-Host "  |" -ForegroundColor DarkGray
+    }
+
+    $pipe = "|"
+    $branch = "L"
+    $space = " "
+
+    $prefix = "$space" * ($Indent * 4)
+
+    $subOUs = Get-ADOrganizationalUnit -Filter 'Name -like "*"' -SearchBase $SearchBase -SearchScope OneLevel -ErrorAction SilentlyContinue |
+        Sort-Object Name
+
+    $users = Get-ADUser -Filter 'Name -like "*"' -SearchBase $SearchBase -SearchScope OneLevel -Properties DisplayName, GivenName, Surname -ErrorAction SilentlyContinue |
+        Sort-Object Surname, GivenName
+
+    $totalItems = @($subOUs).Count + @($users).Count
+    $currentIndex = 0
+
+    foreach ($ou in $subOUs) {
+        $currentIndex++
+        $isLast = ($currentIndex -eq $totalItems)
+
+        Write-Host "$prefix  $branch " -ForegroundColor DarkGray -NoNewline
+        Write-Host "$($ou.Name)" -ForegroundColor Yellow
+
+        if (-not $isLast) {
+            Show-XanaduUsersTree -SearchBase $ou.DistinguishedName -Indent ($Indent + 1)
+        } else {
+            Show-XanaduUsersTree -SearchBase $ou.DistinguishedName -Indent ($Indent + 1)
+        }
+    }
+
+    foreach ($user in $users) {
+        $currentIndex++
+        $displayName = if ($user.GivenName -and $user.Surname) {
+            "$($user.GivenName) $($user.Surname.ToUpper())"
+        } elseif ($user.DisplayName) {
+            $user.DisplayName
+        } else {
+            $user.Name
+        }
+
+        Write-Host "$prefix  $branch " -ForegroundColor DarkGray -NoNewline
+        Write-Host "$displayName" -ForegroundColor White
+    }
+}
+
 

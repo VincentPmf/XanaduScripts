@@ -48,6 +48,17 @@ function Select-OUGroup {
         [string]$SearchBase
     )
 
+    $myGroups = Get-UsersGroups
+
+    return Select-FromList -Title "Sélectionnez un groupe" -Options $myGroups
+}
+
+function Get-UsersGroups {
+    [CmdletBinding()]
+    param (
+        [string]$SearchBase
+    )
+
     if (-not $SearchBase) {
         $DomainDN = (Get-ADDomain).DistinguishedName
         $SearchBase = "OU=Users,OU=Xanadu,$DomainDN"
@@ -57,7 +68,7 @@ function Select-OUGroup {
         Select-Object -ExpandProperty Name |
         Sort-Object
 
-    return Select-FromList -Title "Sélectionnez un groupe" -Options $myGroups
+    return $myGroups
 }
 
 
