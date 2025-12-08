@@ -168,6 +168,7 @@ function Invoke-UpdateUser {
                 Update-UserName -Nom (Read-Host "Nouveau nom") `
                 -SamAccountName $user.SamAccountName
             }
+            "Quitter" {$continue = $false}
         }
     }
 }
