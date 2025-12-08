@@ -227,7 +227,7 @@ function Show-XanaduUsersTree {
 
     $prefix = "" * ($Indent * 4)
     for ($i = 0; $i -lt $Indent; $i++) {
-        $prefix += "    "
+        $prefix += " $verticalLine  "
     }
 
     $subOUs = @(Get-ADOrganizationalUnit -Filter 'Name -like "*"' -SearchBase $SearchBase -SearchScope OneLevel -ErrorAction SilentlyContinue |
