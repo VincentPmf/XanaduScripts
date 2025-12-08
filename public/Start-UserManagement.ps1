@@ -151,6 +151,7 @@ function Invoke-UpdateUser {
     Write-Host "  Activé         : $($user.Enabled)"
     Write-Host ""
 
+    
 
 }
 
