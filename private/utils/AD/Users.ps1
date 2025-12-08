@@ -174,7 +174,7 @@ function Update-UserName {
     )
 
     try {
-        Set-ADUser -Identity $SamAccountName -Surname $Nom -Name "$Prenom $Nom"
+        Set-ADUser -Identity $SamAccountName -Surname $Nom -Name "$Prenom $Nom" -SamAccountName "$($Prenom.ToLower()).$($Nom.ToLower())" -ErrorAction Stop
         Write-Host "Le nom de l'utilisateur '$SamAccountName' a été mis à jour avec succès en '$Nom'." -ForegroundColor Green
     }
     catch {
