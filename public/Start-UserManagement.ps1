@@ -81,7 +81,7 @@ function Invoke-CreateUser {
         Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
         return
     }
-    New-User -Nom $Nom -Prenom $Prenom -Group $Group
+    New-XanaduUser -Nom $Nom -Prenom $Prenom -Group $Group
 }
 
 function Invoke-UpdateUser {
