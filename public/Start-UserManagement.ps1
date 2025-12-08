@@ -99,12 +99,8 @@ function Invoke-UpdateUser {
 
     if (-not $SamAccountName) {
         Get-ADUser -Filter * | ForEach-Object {
-            $display = "$($_.SamAccountName) - $($_.GivenName) $($_.Surname)"
-            [PSCustomObject]@{
-                Name        = $display
-                SamAccountName = $_.SamAccountName
-            }
-        } | Sort-Object Name | ForEach-Object { $_.Name }
+            Write-Host "$($_.SamAccountName) : $($_.GivenName) $($_.Surname)"
+        }  | Sort-Object Name
         $selected = Select-FromList -Title "Sélectionnez un utilisateur à modifier"
         Write-host "Sélectionné : $selected"
     }
