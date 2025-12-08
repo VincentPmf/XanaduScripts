@@ -270,7 +270,18 @@ function Invoke-ResetUserPassword {
     .SYNOPSIS
         Lance le processus de réinitialisation du mot de passe d'un utilisateur.
     #>
-    Write-Host "`n--- Fonction Reset PW à implémenter ---`n" -ForegroundColor Yellow
+    [CmdletBinding()]
+
+    $user = Select-XanaduUser
+
+    Set-ADAccountPassword -Identity $user.SamAccountName`
+        -Reset -NewPassword (
+            ConvertTo-SecureString `
+            -AsPlainText "Xanadu$(Get-Date -Format 'yyyy')!" `
+            -Force
+            -ChangePasswordAtLogon
+        )
+
 }
 
 function Start-UserManagement {
