@@ -109,11 +109,13 @@ function Invoke-UpdateUser {
             $Prenom = Read-Host "Prénom de l'utilisateur à modifier"
         }
 
-        $searchSam = "$($Prenom.ToLower()).$($Nom.ToLower())"
-        $user = Get-ADUser -Filter "SamAccountName -eq '$searchSam'" -Properties * -ErrorAction SilentlyContinue
+        if ($Nom -and $Prenom) {
+            $searchSam = "$($Prenom.ToLower()).$($Nom.ToLower())"
+            $user = Get-ADUser -Filter "SamAccountName -eq '$searchSam'" -Properties * -ErrorAction SilentlyContinue
 
-        if (-not $user) {
-            $user = Get-ADUser -Filter "GivenName -eq '$Prenom' -and Surname -eq '$Nom'" -Properties * -ErrorAction SilentlyContinue
+            if (-not $user) {
+                $user = Get-ADUser -Filter "GivenName -eq '$Prenom' -and Surname -eq '$Nom'" -Properties * -ErrorAction SilentlyContinue
+            }
         }
     }
 
