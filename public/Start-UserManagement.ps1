@@ -118,6 +118,11 @@ function Invoke-UpdateUser {
         }
     }
 
+    if (-not $user) {
+        Write-Host "❌ Utilisateur non trouvé." -ForegroundColor Red
+        return
+    }
+
     if ($user -is [array]) {
         Write-Host "⚠️ Plusieurs utilisateurs trouvés :" -ForegroundColor Yellow
         $userNames = $user | ForEach-Object { "$($_.Name) ($($_.SamAccountName))" }
