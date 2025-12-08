@@ -119,7 +119,7 @@ function Invoke-UpdateUser {
     }
 
     if (-not $user) {
-        Write-Host "❌ Utilisateur non trouvé." -ForegroundColor Red
+        Write-Host "Utilisateur non trouvé." -ForegroundColor Red
         return
     }
 
