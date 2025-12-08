@@ -151,7 +151,19 @@ function Invoke-UpdateUser {
     Write-Host "  Activé         : $($user.Enabled)"
     Write-Host ""
 
-    
+    $attributesToUpdate = @(
+        "Nom",
+        "Prénom",
+        "Email",
+        "Groupe",
+        "Activer/Désactiver le compte"
+    )
+
+    $attributeChoice = Select-FromList -Title "Sélectionnez l'attribut à modifier" -Options $attributesToUpdate
+    if (-not $attributeChoice) {
+        Write-Host "Opération annulée." -ForegroundColor Yellow
+        return
+    }
 
 }
 
@@ -219,12 +231,7 @@ function Start-UserManagement {
             "Lister les utilisateurs" { Invoke-ListUsers }
             "Réinitialiser le mot de passe utilisateur" { Invoke-ResetUserPassword }
             "Quitter"                 { $continue = $false }
-            $null                     { $continue = $false }  # Échap
-        }
-
-        if ($continue -and $choice -ne "Quitter") {
-            Write-Host ""
-            Read-Host "Appuyez sur Entrée pour continuer"
+            $null                     { $continue = $false }
         }
     }
 
