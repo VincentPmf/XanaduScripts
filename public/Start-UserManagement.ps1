@@ -120,7 +120,7 @@ function Invoke-UpdateUser {
     }
 
     if (-not $user) {
-        Write-Host "Sélection manuelle." -ForegroundColor Yellow
+        Write-Host "Aucun utilisateur trouvé." -ForegroundColor Yellow
         $user = Select-XanaduUser
         if (-not $user) {
             Write-Host "Opération annulée." -ForegroundColor Yellow
@@ -167,6 +167,12 @@ function Invoke-UpdateUser {
                 Write-Host "`nMise à jour du nom de $($user.Surname)" -ForegroundColor Cyan
                 Update-UserName -Nom (Read-Host "Nouveau nom") `
                     -Prenom $user.GivenName `
+                    -SamAccountName $user.SamAccountName
+            }
+            "Prénom" {
+                Write-Host "`nMise à jour du prénom de $($user.Surname)" -ForegroundColor Cyan
+                Update-UserName -Nom $user.Surname `
+                    -Prenom (Read-Host "Nouveau prénom") `
                     -SamAccountName $user.SamAccountName
             }
             "Quitter" {$continue = $false}
