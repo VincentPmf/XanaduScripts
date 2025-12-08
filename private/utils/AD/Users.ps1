@@ -207,7 +207,8 @@ function Show-XanaduUsersTree {
     [CmdletBinding()]
     param(
         [string]$SearchBase,
-        [int]$Indent = 0
+        [int]$Indent = 0,
+        [bool]$IsLast = $false
     )
 
     # Caracteres box-drawing via codes ASCII/Unicode
