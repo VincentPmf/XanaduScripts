@@ -100,7 +100,8 @@ function Invoke-UpdateUser {
     if ($SamAccountName) {
         $user = Get-ADUser -Filter "SamAccountName -eq '$SamAccountName'" -Properties * -ErrorAction SilentlyContinue
     }
-    if (-not $user) {
+
+    if (-not $user -and ($Nom -or $Prenom)) {
         if (-not $Nom) {
             $Nom = Read-Host "Nom de l'utilisateur à modifier"
         }
@@ -108,11 +109,9 @@ function Invoke-UpdateUser {
             $Prenom = Read-Host "Prénom de l'utilisateur à modifier"
         }
 
-        # Construire le SamAccountName probable
         $searchSam = "$($Prenom.ToLower()).$($Nom.ToLower())"
         $user = Get-ADUser -Filter "SamAccountName -eq '$searchSam'" -Properties * -ErrorAction SilentlyContinue
 
-        # Si pas trouvé, chercher par nom/prénom dans les attributs
         if (-not $user) {
             $user = Get-ADUser -Filter "GivenName -eq '$Prenom' -and Surname -eq '$Nom'" -Properties * -ErrorAction SilentlyContinue
         }
@@ -120,11 +119,51 @@ function Invoke-UpdateUser {
 
     if (-not $user) {
         Write-Host "Utilisateur non trouvé." -ForegroundColor Red
-        return
+                $DomainDN = (Get-ADDomain).DistinguishedName
+        $SearchBase = "OU=Users,OU=Xanadu,$DomainDN"
+
+        $myGroups = Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope OneLevel |
+            Select-Object -ExpandProperty Name |
+            Sort-Object
+
+        if ($myGroups.Count -eq 0) {
+            Write-Host "Aucun groupe trouvé dans l'OU Users." -ForegroundColor Red
+            return
+        }
+
+        $selectedGroup = Select-FromList -Title "Sélectionnez un groupe" -Options $myGroups
+
+        if (-not $selectedGroup -or $selectedGroup -eq "Quitter") {
+            Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
+            return
+        }
+
+        $GroupOU = "OU=$selectedGroup,$SearchBase"
+        $usersInGroup = Get-ADUser -Filter * -SearchBase $GroupOU -SearchScope Subtree -Properties DisplayName, SamAccountName |
+            Sort-Object DisplayName
+
+        if ($usersInGroup.Count -eq 0) {
+            Write-Host "Aucun utilisateur trouvé dans le groupe '$selectedGroup'." -ForegroundColor Red
+            return
+        }
+
+        $userOptions = $usersInGroup | ForEach-Object {
+            "$($_.DisplayName) ($($_.SamAccountName))"
+        }
+
+        $selectedUserOption = Select-FromList -Title "Sélectionnez un utilisateur dans '$selectedGroup'" -Options $userOptions
+
+        if (-not $selectedUserOption -or $selectedUserOption -eq "Quitter") {
+            Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
+            return
+        }
+
+        $selectedSam = ($selectedUserOption -split '\(')[-1].TrimEnd(')')
+        $user = Get-ADUser -Filter "SamAccountName -eq '$selectedSam'" -Properties *
     }
 
     if ($user -is [array]) {
-        Write-Host "⚠️ Plusieurs utilisateurs trouvés :" -ForegroundColor Yellow
+        Write-Host "Plusieurs utilisateurs trouvés :" -ForegroundColor Yellow
         $userNames = $user | ForEach-Object { "$($_.Name) ($($_.SamAccountName))" }
         $selectedName = Select-FromList -Title "Sélectionnez l'utilisateur" -Options $userNames
         if (-not $selectedName) {
