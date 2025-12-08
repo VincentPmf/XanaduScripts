@@ -275,10 +275,11 @@ function Invoke-ResetUserPassword {
     $user = Select-XanaduUser
 
     Set-ADAccountPassword -Identity $user.SamAccountName`
-        -Reset -NewPassword (
+        -Reset `
+        -NewPassword (
             ConvertTo-SecureString `
             -AsPlainText "Xanadu$(Get-Date -Format 'yyyy')!" `
-            -Force
+            -Force `
             -ChangePasswordAtLogon
         )
 
