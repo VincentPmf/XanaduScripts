@@ -209,7 +209,7 @@ function Invoke-UpdateUser {
                         Move-ADObject -Identity $user.DistinguishedName -TargetPath $newOU
                         Write-Host "Groupe mis à jour avec succès en '$newGroup'." -ForegroundColor Green
                     } catch {
-                        Write-Host "Erreur lors de la mise à jour du groupe : $_" -Foreground
+                        Write-Host "Erreur lors de la mise à jour du groupe : $_" -Foreground Red
                     }
                 }
             }
