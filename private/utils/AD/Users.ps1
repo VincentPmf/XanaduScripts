@@ -132,7 +132,7 @@ function Select-XanaduUser {
     $selection = Select-FromList -Title "=== $currentOUName ===" -Options $options
 
     if ($selection -eq "[..] Retour" -or $selection -eq "Quitter") {
-        if ($SearchBase -e $RootOU) {
+        if ($SearchBase -eq $RootOU) {
             Write-Host "Annulation" -ForegroundColor Yellow
             return $null
         }
