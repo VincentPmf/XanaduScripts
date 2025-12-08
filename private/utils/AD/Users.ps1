@@ -131,11 +131,7 @@ function Select-XanaduUser {
 
     $selection = Select-FromList -Title "=== $currentOUName ===" -Options $options
 
-    if (-not $selection -or $selection -eq "Quitter") {
-        return $null
-    }
-
-    if ($selection -eq "[..] Retour") {
+    if ($selection -eq "[..] Retour" -or $selection -eq "Quitter") {
         $parentOU = ($SearchBase -split ',', 2)[1]
         return Select-XanaduUser -SearchBase $parentOU
     }
