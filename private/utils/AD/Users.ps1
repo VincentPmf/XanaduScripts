@@ -174,7 +174,10 @@ function Update-UserName {
     )
 
     try {
-        Set-ADUser -Identity $SamAccountName -Surname $Nom -Name "$Prenom $Nom" -SamAccountName "$($Prenom.ToLower()).$($Nom.ToLower())" -ErrorAction Stop
+        Set-ADUser -Identity $SamAccountName -Surname $Nom -GivenName $Prenom -DisplayName "$Prenom $Nom"
+
+        $user = Get-ADUser -Identity $SamAccountName
+        Rename-ADObject -Identity $user.DistinguishedName -NewName "$Prenom $Nom"
         Write-Host "Le nom de l'utilisateur '$SamAccountName' a été mis à jour avec succès en '$Nom'." -ForegroundColor Green
     }
     catch {
