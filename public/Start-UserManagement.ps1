@@ -42,23 +42,23 @@ function Invoke-CreateUser {
     )
 
     if (-not $Nom) {
-        $Nom = Read-Host "Veuillez spécifier le nom (Nom)"
+        $Nom = Read-HostWithEscape "Veuillez spécifier le nom (ESC pour annuler)"
+        if (-not $Nom) {
+            Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
+            return
+        }
     }
 
     if (-not $Prenom) {
-        $Prenom = Read-Host "Veuillez spécifier le prénom (Prenom)"
+        $Prenom = Read-Host "Veuillez spécifier le prénom (ESC pour annuler)"
+        if (-not $Prenom) {
+            Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
+            return
+        }
     }
 
-    $DomainDN = (Get-ADDomain).DistinguishedName
-    $SearchBase = "OU=Users,OU=Xanadu,$DomainDN"
-
-    $myGroups = Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope OneLevel |
-        Select-Object -ExpandProperty Name |
-        Sort-Object
-
     if ($Group -notin $myGroups) {
-        $Group = Select-FromList -Title "Sélectionnez un groupe" -Options $myGroups
-
+        $Group = Select-OUGroup
         if (-not $Group -or $Group -eq "Quitter") {
             Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
             return
@@ -183,6 +183,37 @@ function Invoke-UpdateUser {
                     -SamAccountName $user.SamAccountName
                 }
             }
+            "Email" {
+                Write-Host "`nMise à jour de l'email de $($user.EmailAddress)" -ForegroundColor Cyan
+                $newEmail = Read-HostWithEscape -Prompt "Nouvel email (Esc pour annuler)"
+                if (-not $newEmail) {
+                    Write-Host "Modification annulée." -ForegroundColor Yellow
+                } else {
+                    try {
+                        Set-ADUser -Identity $user.SamAccountName -EmailAddress $newEmail -ErrorAction Stop
+                        Write-Host "Email mis à jour avec succès en '$newEmail'." -ForegroundColor Green
+                    } catch {
+                        Write-Host "Erreur lors de la mise à jour de l'email : $_" -ForegroundColor Red
+                    }
+                }
+            }
+            "Groupe" {
+                Write-Host "`nMise à jour du groupe de $($user.SamAccountName)" -ForegroundColor Cyan
+                $newGroup = Select-OUGroup
+                if (-not $newGroup) {
+                    Write-Host "Modification annulée." -ForegroundColor Yellow
+                } else {
+                    try {
+                        $currentOU = ($user.DistinguishedName -split ',')[1..($user.DistinguishedName.Length)] -join ','
+                        $newOU = "OU=$newGroup,$currentOU"
+                        Move-ADObject -Identity $user.DistinguishedName -TargetPath $newOU
+                        Write-Host "Groupe mis à jour avec succès en '$newGroup'." -ForegroundColor Green
+                    } catch {
+                        Write-Host "Erreur lors de la mise à jour du groupe : $_" -Foreground
+                    }
+                }
+            }
+
             "Quitter" {$continue = $false}
         }
     }

@@ -42,3 +42,21 @@ function Show-ADGroups {
     end { return }
 }
 
+function Select-OUGroup {
+    [CmdletBinding()]
+    param (
+        [string]$SearchBase
+    )
+
+    if (-not $SearchBase) {
+        $DomainDN = (Get-ADDomain).DistinguishedName
+        $SearchBase = "OU=Users,OU=Xanadu,$DomainDN"
+    }
+
+    $myGroups = Get-ADOrganizationalUnit -Filter * -SearchBase $SearchBase -SearchScope OneLevel |
+        Select-Object -ExpandProperty Name |
+        Sort-Object
+
+    return Select-FromList -Title "Sélectionnez un groupe" -Options $myGroups
+}
+
