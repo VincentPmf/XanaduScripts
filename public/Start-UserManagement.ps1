@@ -97,13 +97,51 @@ function Invoke-UpdateUser {
     )
     $user = $null
 
-    if (-not $SamAccountName) {
-        Get-ADUser -Filter * | ForEach-Object {
-            Write-Host "$($_.SamAccountName) : $($_.GivenName) $($_.Surname)"
-        }  | Sort-Object Name
-        $selected = Select-FromList -Title "Sélectionnez un utilisateur à modifier"
-        Write-host "Sélectionné : $selected"
+    if ($SamAccountName) {
+        $user = Get-ADUser -Filter "SamAccountName -eq '$SamAccountName'" -Properties * -ErrorAction SilentlyContinue
     }
+    if (-not $user) {
+        if (-not $Nom) {
+            $Nom = Read-Host "Nom de l'utilisateur à modifier"
+        }
+        if (-not $Prenom) {
+            $Prenom = Read-Host "Prénom de l'utilisateur à modifier"
+        }
+
+        # Construire le SamAccountName probable
+        $searchSam = "$($Prenom.ToLower()).$($Nom.ToLower())"
+        $user = Get-ADUser -Filter "SamAccountName -eq '$searchSam'" -Properties * -ErrorAction SilentlyContinue
+
+        # Si pas trouvé, chercher par nom/prénom dans les attributs
+        if (-not $user) {
+            $user = Get-ADUser -Filter "GivenName -eq '$Prenom' -and Surname -eq '$Nom'" -Properties * -ErrorAction SilentlyContinue
+        }
+    }
+
+    if ($user -is [array]) {
+        Write-Host "⚠️ Plusieurs utilisateurs trouvés :" -ForegroundColor Yellow
+        $userNames = $user | ForEach-Object { "$($_.Name) ($($_.SamAccountName))" }
+        $selectedName = Select-FromList -Title "Sélectionnez l'utilisateur" -Options $userNames
+        if (-not $selectedName) {
+            Write-Host "Opération annulée." -ForegroundColor Yellow
+            return
+        }
+        $selectedSam = ($selectedName -split '\(')[1].TrimEnd(')')
+        $user = $user | Where-Object { $_.SamAccountName -eq $selectedSam }
+    }
+
+
+    Write-Host "`n=== Utilisateur trouvé ===" -ForegroundColor Cyan
+    Write-Host "  Nom complet    : $($user.Name)"
+    Write-Host "  Prénom         : $($user.GivenName)"
+    Write-Host "  Nom            : $($user.Surname)"
+    Write-Host "  SamAccountName : $($user.SamAccountName)"
+    Write-Host "  Email          : $($user.EmailAddress)"
+    Write-Host "  OU             : $($user.DistinguishedName -replace '^CN=[^,]+,','')"
+    Write-Host "  Activé         : $($user.Enabled)"
+    Write-Host ""
+
+
 }
 
 function Invoke-DeleteUser {
