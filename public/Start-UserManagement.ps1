@@ -166,7 +166,8 @@ function Invoke-UpdateUser {
             "Nom" {
                 Write-Host "`nMise à jour du nom de $($user.Surname)" -ForegroundColor Cyan
                 Update-UserName -Nom (Read-Host "Nouveau nom") `
-                -SamAccountName $user.SamAccountName
+                    -Prenom (Read-Host "Nouveau prénom") `
+                    -SamAccountName $user.SamAccountName
             }
             "Quitter" {$continue = $false}
         }
