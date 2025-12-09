@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
     User input utilities for UI interactions.
 

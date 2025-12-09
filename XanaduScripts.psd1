@@ -1,4 +1,4 @@
-@{
+﻿@{
     RootModule = 'XanaduScripts.psm1'
     ModuleVersion = '1.0.0'
     GUID = '495b324d-c4d4-4ce9-932d-4bf091628977'

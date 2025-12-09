@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Helpers for UI displays
 

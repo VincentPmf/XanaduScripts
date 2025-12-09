@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Gestion des utilisateurs Active Directory - Point d'entrée.
 

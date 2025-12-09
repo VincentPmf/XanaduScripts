@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Module XanaduScripts - Point d'entrée.
 .DESCRIPTION
