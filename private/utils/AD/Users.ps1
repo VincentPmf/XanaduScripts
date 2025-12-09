@@ -227,7 +227,11 @@ function Show-XanaduUsersTree {
 
     $prefix = "" * ($Indent * 4)
     for ($i = 0; $i -lt $Indent; $i++) {
-        $prefix += " $verticalLine  "
+        if (IsLast) {
+            $prefix += "     "
+        } else {
+            $prefix += " $verticalLine  "
+        }
     }
 
     $subOUs = @(Get-ADOrganizationalUnit -Filter 'Name -like "*"' -SearchBase $SearchBase -SearchScope OneLevel -ErrorAction SilentlyContinue |
@@ -243,7 +247,7 @@ function Show-XanaduUsersTree {
     for ($i = 0; $i -lt $allItems.Count; $i++) {
         $isLastItem = ($i -eq $allItems.Count - 1)
         $connector = if ($isLastItem) { $branchEnd } else { $branchTee }
-        $prefix = if ($isLastItem) { "    " }
+
 
         if ($allItems[$i].Type -eq "OU") {
             $ou = $allItems[$i].Item
@@ -255,9 +259,6 @@ function Show-XanaduUsersTree {
         }
         else {
             $user = $allItems[$i].Item
-            if ($isLastItem) {
-                $prefix =  $prefix + " " * ($prefix.Length - 4) + "    "
-            }
             $displayName = if ($user.GivenName -and $user.Surname) {
                 "$($user.GivenName) $($user.Surname.ToUpper())"
             } elseif ($user.DisplayName) {
