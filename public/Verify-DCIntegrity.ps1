@@ -81,7 +81,7 @@ PARAMETER: -wysiwygCustomField "ReplaceMeWithaWYSIWYGcustomField"
     Release Notes: Initial Release
 #>
 
-function Verify-DCIntergity {
+function Verify-DCIntegrity {
     <#
     .SYNOPSIS
         Point d'entrée principal du script.
