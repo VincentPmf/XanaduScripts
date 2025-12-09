@@ -303,6 +303,7 @@ function Start-UserManagement {
         Start-UserManagement
     #>
     [CmdletBinding(DefaultParameterSetName='Encode')]
+    [CmdletBinding()]
     param(
         [ValidateSet("Create", "Update", "Delete", "List")]
         [string]$Action,
@@ -311,7 +312,6 @@ function Start-UserManagement {
         [string]$Prenom,
         [string]$Group,
         [string]$SamAccountName
-
     )
 
     if ($Action) {
