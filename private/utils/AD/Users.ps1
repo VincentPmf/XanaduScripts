@@ -227,7 +227,7 @@ function Show-XanaduUsersTree {
 
     $prefix = "" * ($Indent * 4)
     for ($i = 0; $i -lt $Indent; $i++) {
-        if (IsLast) {
+        if ($IsLast) {
             $prefix += "     "
         } else {
             $prefix += " $verticalLine  "
