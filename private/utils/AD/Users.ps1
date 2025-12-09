@@ -243,6 +243,7 @@ function Show-XanaduUsersTree {
     for ($i = 0; $i -lt $allItems.Count; $i++) {
         $isLastItem = ($i -eq $allItems.Count - 1)
         $connector = if ($isLastItem) { $branchEnd } else { $branchTee }
+        $prefix = if ($isLastItem) { "    " }
 
         if ($allItems[$i].Type -eq "OU") {
             $ou = $allItems[$i].Item
