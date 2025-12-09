@@ -33,11 +33,12 @@ $PublicFunctions = Get-ChildItem -Path "$ModuleRoot\Public" -Recurse -Filter "*.
 
 foreach ($file in $PublicFunctions) {
     try {
+        Write-Host "Chargement de: $($file.Name)" -ForegroundColor Cyan
         . $file.FullName
-        Write-Verbose "Chargé (Public) : $($file.Name)"
+        Write-Host "OK: $($file.Name)" -ForegroundColor Green
     }
     catch {
-        Write-Error "Erreur lors du chargement de $($file.FullName) : $_"
+        Write-Host "ERREUR dans $($file.Name): $_" -ForegroundColor Red
     }
 }
 
