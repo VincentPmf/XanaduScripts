@@ -89,7 +89,6 @@ function Verify-DCIntegrity {
         Verify-DCIntergity -wysiwygCustomField "ReplaceMeWithaWYSIWYGcustomField"
     #>
     [CmdletBinding(DefaultParameterSetName='Encode')]
-    [CmdletBinding()]
     param (
         [Parameter()]
         [String]$wysiwygCustomField
