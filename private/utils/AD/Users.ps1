@@ -256,7 +256,7 @@ function Show-XanaduUsersTree {
         else {
             $user = $allItems[$i].Item
             if ($isLastItem) {
-                $prefix =  $prefix " " * ($prefix.Length - 4) + "    "
+                $prefix =  $prefix + " " * ($prefix.Length - 4) + "    "
             }
             $displayName = if ($user.GivenName -and $user.Surname) {
                 "$($user.GivenName) $($user.Surname.ToUpper())"
