@@ -8,4 +8,5 @@
     RequiredModules = @('ActiveDirectory')
 
     FunctionsToExport = @('Start-UserManagement')
+    FunctionsToExport = @('Verify-DCIntegrity')
 }
