@@ -7,6 +7,8 @@
     PowerShellVersion = '5.1'
     RequiredModules = @('ActiveDirectory')
 
-    FunctionsToExport = @('Start-UserManagement')
-    FunctionsToExport = @('Verify-DCIntegrity')
+    FunctionsToExport = @(
+        'Start-UserManagement',
+        'Verify-DCIntegrity'
+    )
 }
