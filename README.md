@@ -42,7 +42,8 @@ C:\$PORFILE
 Import-Module C:\[Chemin du script]
 ```
 
-### Lancement de l'interface :
+### Lancement des scripts :
+#### Management des users
 ```powershell
 # Commande PowerShell
 Start-UserManagement
@@ -58,6 +59,21 @@ Start-UserManagement -Action Delete
 
 # Lister les utilisateurs
 Start-UserManagement -Action List
+```
+
+#### Vérification du DC
+```powershell
+# Vérifier l'intégrité du Domain Controller (tous les tests)
+Verify-DCIntegrity
+
+# Mode DC uniquement (infrastructure)
+Verify-DCIntegrity -Mode DC
+
+# Mode AD uniquement (Active Directory)
+Verify-DCIntegrity -Mode AD
+
+# Tous les tests
+Verify-DCIntegrity -Mode All
 ```
 
 ## 📝 License
