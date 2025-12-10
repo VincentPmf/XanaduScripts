@@ -40,7 +40,6 @@ function Initialize-EventLogSource {
 }
 
 function Get-DCDiagResults {
-    $results = @()
     param (
         [string]$Mode
     )
@@ -150,7 +149,10 @@ function Verify-DCIntegrity {
         # Exécuter les tests
         Write-Host "`nExécution des tests DCDiag (Mode: $Mode)..." -ForegroundColor Cyan
         $TestResults = Get-DCDiagResults -Mode $Mode
-        Write-Host "`nTests terminés $TestRsults"
+        Write-Host "`nTests terminés $TestResults"
+        foreach ($r in $TestResults) {
+            Write-Host "Test : $($r.Test) | Status : $($r.Status)"
+        }
 
         # Trier les résultats
         $PassingTests = $TestResults | Where-Object { $_.Status -match "pass" }

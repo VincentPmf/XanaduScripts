@@ -9,7 +9,6 @@
 
     FunctionsToExport = @(
         'Start-UserManagement',
-        'Verify-DCIntegrity',
-        'Get-DCDiagResults'
+        'Verify-DCIntegrity'
     )
 }
