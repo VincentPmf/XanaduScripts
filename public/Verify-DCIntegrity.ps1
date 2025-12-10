@@ -40,8 +40,12 @@ function Initialize-EventLogSource {
 }
 
 function Get-DCDiagResults {
-    [ValidateSet("All", "DC", "AD")]
-    [string]$Mode
+    param (
+        [string]$Mode
+    )
+
+    $results = @()
+
     $ADTests = @(
         "Replications",        # Réplication AD
         "ObjectsReplicated",   # Objets répliqués
@@ -86,7 +90,7 @@ function Get-DCDiagResults {
         $StatusLine = $RawResult | Where-Object { $_ -match "\. .* test $DCTest" }
         $Status = $StatusLine -split ' ' | Where-Object { $_ -like "passed" -or $_ -like "failed" }
 
-        [PSCustomObject]@{
+        $results += [PSCustomObject]@{
             Test   = $DCTest
             Status = $Status
             Result = $RawResult
@@ -94,6 +98,7 @@ function Get-DCDiagResults {
 
         Remove-Item -Path $outputFile -ErrorAction SilentlyContinue
     }
+    return $results
 }
 
 function Verify-DCIntegrity {
