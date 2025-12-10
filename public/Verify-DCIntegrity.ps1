@@ -39,6 +39,67 @@ function Initialize-EventLogSource {
     return $true
 }
 
+function Get-DCDiagResults {
+    [ValidateSet("All", "DC", "AD")]
+    [string]$Mode
+    $ADTests = @(
+        "Replications",        # Réplication AD
+        "ObjectsReplicated",   # Objets répliqués
+        "NCSecDesc",           # Permissions partitions AD
+        "KnowsOfRoleHolders",  # Rôles FSMO
+        "VerifyReferences",    # Intégrité références AD
+        "CrossRefValidation",  # Cross-references
+        "CheckSDRefDom",       # Security Descriptors
+        "MachineAccount",      # Compte machine AD
+        "RidManager",          # Pool RID
+        "Intersite",           # Réplication inter-sites
+        "KccEvent"             # Topologie réplication
+    )
+    $DCTests = @(
+        "Connectivity",      # Connectivité réseau
+        "Advertising",       # Annonces DNS
+        "Services",          # Services Windows
+        "NetLogons",         # Service Netlogon
+        "SysVolCheck",       # Partage SYSVOL
+        "FrsEvent",          # Réplication SYSVOL (FRS)
+        "DFSREvent",         # Réplication SYSVOL (DFS-R)
+        "SystemLog",         # Erreurs système
+        "LocatorCheck"       # Localisation DC
+    )
+    $DCDiagTestsToRun = switch ($Mode) {
+        "DC"  { $DCTests }
+        "AD"  { $ADTests }
+        "All" { $DCTests + $ADTests }
+    }
+    Write-Host "Tests à exécuter: $($DCDiagTestsToRun.Count)" -ForegroundColor Magenta  # DEBUG
+    foreach ($DCTest in $DCDiagTestsToRun) {
+Write-Host "Running: $DCTest" -ForegroundColor Gray  # DEBUG
+
+
+        $outputFile = "$env:TEMP\dc-diag-$DCTest.txt"
+        $DCDiag = Start-Process -FilePath "DCDiag.exe" -ArgumentList "/test:$DCTest", "/f:$outputFile" -PassThru -Wait -NoNewWindow
+
+Write-Host "Exit code: $($DCDiag.ExitCode)" -ForegroundColor Gray  # DEBUG
+        if ($DCDiag.ExitCode -ne 0) {
+            Write-Host "[Error] Running $DCTest!" -ForegroundColor Red
+            continue
+        }
+
+        $RawResult = Get-Content -Path $outputFile | Where-Object { $_.Trim() }
+Write-Host "Lignes lues: $($RawResult.Count)" -ForegroundColor Gray  # DEBUG
+        $StatusLine = $RawResult | Where-Object { $_ -match "\. .* test $DCTest" }
+        $Status = $StatusLine -split ' ' | Where-Object { $_ -like "passed" -or $_ -like "failed" }
+
+        [PSCustomObject]@{
+            Test   = $DCTest
+            Status = $Status
+            Result = $RawResult
+        }
+
+        Remove-Item -Path $outputFile -ErrorAction SilentlyContinue
+    }
+}
+
 function Verify-DCIntegrity {
     <#
     .SYNOPSIS
@@ -66,7 +127,7 @@ function Verify-DCIntegrity {
 
     begin {
         $script:EventLogEnabled = Initialize-EventLogSource
-    
+
         function Test-IsDomainController {
             $OS = if ($PSVersionTable.PSVersion.Major -lt 5) {
                 Get-WmiObject -Class Win32_OperatingSystem
@@ -79,60 +140,6 @@ function Verify-DCIntegrity {
                 return $true
             }
         }
-
-        function Get-DCDiagResults {
-            $ADTests = @(
-                "Replications",        # Réplication AD
-                "ObjectsReplicated",   # Objets répliqués
-                "NCSecDesc",           # Permissions partitions AD
-                "KnowsOfRoleHolders",  # Rôles FSMO
-                "VerifyReferences",    # Intégrité références AD
-                "CrossRefValidation",  # Cross-references
-                "CheckSDRefDom",       # Security Descriptors
-                "MachineAccount",      # Compte machine AD
-                "RidManager",          # Pool RID
-                "Intersite",           # Réplication inter-sites
-                "KccEvent"             # Topologie réplication
-            )
-            $DCTests = @(
-                "Connectivity",      # Connectivité réseau
-                "Advertising",       # Annonces DNS
-                "Services",          # Services Windows
-                "NetLogons",         # Service Netlogon
-                "SysVolCheck",       # Partage SYSVOL
-                "FrsEvent",          # Réplication SYSVOL (FRS)
-                "DFSREvent",         # Réplication SYSVOL (DFS-R)
-                "SystemLog",         # Erreurs système
-                "LocatorCheck"       # Localisation DC
-            )
-            $DCDiagTestsToRun = switch ($Mode) {
-                "DC"  { $DCTests }
-                "AD"  { $ADTests }
-                "All" { $DCTests + $ADTests }
-            }
-
-            foreach ($DCTest in $DCDiagTestsToRun) {
-                $outputFile = "$env:TEMP\dc-diag-$DCTest.txt"
-                $DCDiag = Start-Process -FilePath "DCDiag.exe" -ArgumentList "/test:$DCTest", "/f:$outputFile" -PassThru -Wait -NoNewWindow
-
-                if ($DCDiag.ExitCode -ne 0) {
-                    Write-Host "[Error] Running $DCTest!" -ForegroundColor Red
-                    continue
-                }
-
-                $RawResult = Get-Content -Path $outputFile | Where-Object { $_.Trim() }
-                $StatusLine = $RawResult | Where-Object { $_ -match "\. .* test $DCTest" }
-                $Status = $StatusLine -split ' ' | Where-Object { $_ -like "passed" -or $_ -like "failed" }
-
-                [PSCustomObject]@{
-                    Test   = $DCTest
-                    Status = $Status
-                    Result = $RawResult
-                }
-
-                Remove-Item -Path $outputFile -ErrorAction SilentlyContinue
-            }
-        }
     }
     process {
         if (!(Test-IsDomainController)) {
@@ -142,7 +149,7 @@ function Verify-DCIntegrity {
 
         # Exécuter les tests
         Write-Host "`nExécution des tests DCDiag (Mode: $Mode)..." -ForegroundColor Cyan
-        $TestResults = Get-DCDiagResults
+        $TestResults = Get-DCDiagResults -Mode $Mode
 
         # Trier les résultats
         $PassingTests = $TestResults | Where-Object { $_.Status -match "pass" }
