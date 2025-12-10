@@ -84,20 +84,19 @@ function Get-DCDiagResults {
             continue
         }
 
-        $RawResult = Get-Content -Path $outputFile | Where-Object { $_.Trim() }
-        $StatusLine = $RawResult | Where-Object { $_ -match "\. .* test $DCTest" }
-        $Status = $StatusLine -split ' ' | Where-Object { $_ -like "passed" -or $_ -like "failed" }
+        $RawContent = Get-Content -Path $outputFile -Raw -ErrorAction SilentlyContinue
+        $RawLines = Get-Content -Path $outputFile -ErrorAction SilentlyContinue | Where-Object { $_.Trim() }
+
+        # Joindre tout en une chaîne pour le parsing (gère les retours à la ligne)
+        $FullText = $RawContent -replace "`r`n", " " -replace "`n", " "
 
         $Status = "Unknown"
-        foreach ($line in $RawResult) {
-            if ($line -match "Le test $DCTest.+a réussi") {
-                $Status = "Passed"
-                break
-            }
-            elseif ($line -match "Le test $DCTest.+a échoué") {
-                $Status = "Failed"
-                break
-            }
+        
+        if ($FullText -match "Le test $DCTest.+a réussi" -or $FullText -match "passed test $DCTest") {
+            $Status = "Passed"
+        }
+        elseif ($FullText -match "Le test $DCTest.+a échoué" -or $FullText -match "failed test $DCTest") {
+            $Status = "Failed"
         }
 
         $results += [PSCustomObject]@{
