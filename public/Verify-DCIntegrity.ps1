@@ -88,13 +88,23 @@ function Get-DCDiagResults {
         $StatusLine = $RawResult | Where-Object { $_ -match "\. .* test $DCTest" }
         $Status = $StatusLine -split ' ' | Where-Object { $_ -like "passed" -or $_ -like "failed" }
 
+        $Status = "Unknown"
+        foreach ($line in $RawResult) {
+            if ($line -match "passed test $DCTest") {
+                $Status = "Passed"
+                break
+            }
+            elseif ($line -match "failed test $DCTest") {
+                $Status = "Failed"
+                break
+            }
+        }
+
         $results += [PSCustomObject]@{
             Test   = $DCTest
             Status = $Status
             Result = $RawResult
         }
-
-        Remove-Item -Path $outputFile -ErrorAction SilentlyContinue
     }
     return $results
 }
@@ -148,11 +158,12 @@ function Verify-DCIntegrity {
 
         # Exécuter les tests
         Write-Host "`nExécution des tests DCDiag (Mode: $Mode)..." -ForegroundColor Cyan
-        $TestResults = Get-DCDiagResults -Mode $Mode
-        Write-Host "`nTests terminés $TestResults"
-        foreach ($r in $TestResults) {
-            Write-Host "Test : $($r.Test) | Status : $($r.Status)"
-        }
+        $TestResults = Get-DCDiagResults -Mode $mode
+
+        $RawResult = Get-Content -Path $outputFile | Where-Object { $_.Trim() }
+        Write-Host "=== DEBUG $DCTest ===" -ForegroundColor Yellow
+        $RawResult | ForEach-Object { Write-Host $_ }
+        Write-Host "=== FIN DEBUG ===" -ForegroundColor Yellow
 
         # Trier les résultats
         $PassingTests = $TestResults | Where-Object { $_.Status -match "pass" }
