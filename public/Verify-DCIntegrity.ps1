@@ -90,17 +90,15 @@ function Get-DCDiagResults {
 
         $Status = "Unknown"
         foreach ($line in $RawResult) {
-            if ($line -match "passed test $DCTest") {
+            if ($line -match "Le test $DCTest.+a réussi") {
                 $Status = "Passed"
                 break
             }
-            elseif ($line -match "failed test $DCTest") {
+            elseif ($line -match "Le test $DCTest.+a échoué") {
                 $Status = "Failed"
                 break
             }
         }
-        Write-Host "[Info] Test '$DCTest' status: $Status, `nRaw : $($RawResult -join "`n")" -ForegroundColor Cyan
-        Write-Host "`n`n`n`n`n`n`n`n`n`n`n`n----------------------------------------`n`n`n`n`n`n`n`n`n`n`n`n"
 
         $results += [PSCustomObject]@{
             Test   = $DCTest
