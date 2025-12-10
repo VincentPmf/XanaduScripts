@@ -40,6 +40,7 @@ function Initialize-EventLogSource {
 }
 
 function Get-DCDiagResults {
+    $results = @()
     param (
         [string]$Mode
     )
@@ -76,8 +77,6 @@ function Get-DCDiagResults {
         "All" { $DCTests + $ADTests }
     }
     foreach ($DCTest in $DCDiagTestsToRun) {
-
-
         $outputFile = "$env:TEMP\dc-diag-$DCTest.txt"
         $DCDiag = Start-Process -FilePath "DCDiag.exe" -ArgumentList "/test:$DCTest", "/f:$outputFile" -PassThru -Wait -NoNewWindow
 
@@ -98,7 +97,6 @@ function Get-DCDiagResults {
 
         Remove-Item -Path $outputFile -ErrorAction SilentlyContinue
     }
-    Write-Host "`nDCDiag Tests Completed. $($results.Count) tests run." -ForegroundColor Green
     return $results
 }
 
