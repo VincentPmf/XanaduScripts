@@ -41,4 +41,5 @@ function Write-DCDiagToEventLog {
         -Source $source `
         -EventId $eventId `
         -EntryType $entryType `
+        -Message "DCDiag Test: $TestName`nStatus: $Status`n`nDetails:`n$Details"
 }

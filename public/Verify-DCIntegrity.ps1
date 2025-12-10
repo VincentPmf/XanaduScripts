@@ -113,12 +113,6 @@ function Verify-DCIntegrity {
         }
     }
     process {
-        # Vérifications préalables
-        if (!(Test-IsElevated)) {
-            Write-Host "[Error] Exécutez en tant qu'Administrateur." -ForegroundColor Red
-            return
-        }
-
         if (!(Test-IsDomainController)) {
             Write-Host "[Error] Ce script doit être exécuté sur un Domain Controller." -ForegroundColor Red
             return
