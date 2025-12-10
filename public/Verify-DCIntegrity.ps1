@@ -19,6 +19,26 @@ Failed Tests: Advertising, LocatorCheck
     Release Notes: Initial Release
 #>
 
+function Initialize-EventLogSource {
+    $source = "XanaduScripts"
+    $logName = "Application"
+
+    try {
+        if (-not [System.Diagnostics.EventLog]::SourceExists($source)) {
+            [System.Diagnostics.EventLog]::CreateEventSource($source, $logName)
+            Write-Host "Source '$source' créée dans le journal '$logName'." -ForegroundColor Green
+            # Attendre un peu que Windows enregistre la source
+            Start-Sleep -Seconds 2
+        }
+    }
+    catch {
+        Write-Host "[Warning] Impossible de créer la source Event Log: $_" -ForegroundColor Yellow
+        Write-Host "Exécutez une fois en tant qu'Administrateur pour créer la source." -ForegroundColor Yellow
+        return $false
+    }
+    return $true
+}
+
 function Verify-DCIntegrity {
     <#
     .SYNOPSIS
@@ -45,6 +65,8 @@ function Verify-DCIntegrity {
     )
 
     begin {
+        $script:EventLogEnabled = Initialize-EventLogSource
+    
         function Test-IsDomainController {
             $OS = if ($PSVersionTable.PSVersion.Major -lt 5) {
                 Get-WmiObject -Class Win32_OperatingSystem

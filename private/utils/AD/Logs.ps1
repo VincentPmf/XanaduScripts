@@ -17,29 +17,32 @@
 
 
 function Write-DCDiagToEventLog {
-    [CmdletBinding()]
     param (
         [string]$TestName,
         [string]$Status,
         [string]$Details
     )
 
+    if (-not $script:EventLogEnabled) { return }
+
     # Créer la source si elle n'existe pas
     $source = "XanaduScripts"
     $logName = "Application"
-
-    if (-not [System.Diagnostics.EventLog]::SourceExists($source)) {
-        New-EventLog -LogName $logName -Source $source
-    }
+    $entryType = if ($Status -match "pass") { "Information" } else { "Warning" }
+    $eventId = if ($Status -match "pass") { 1000 } else { 2000 }
 
     # Définir le type d'événement
     $entryType = if ($Status -match "pass") { "Information" } else { "Warning" }
     $eventId = if ($Status -match "pass") { 1000 } else { 2000 }
 
-    # Écrire dans le journal
-    Write-EventLog -LogName $logName `
-        -Source $source `
-        -EventId $eventId `
-        -EntryType $entryType `
-        -Message "DCDiag Test: $TestName`nStatus: $Status`n`nDetails:`n$Details"
+    try {
+        Write-EventLog -LogName "Application" `
+            -Source $source `
+            -EventId $eventId `
+            -EntryType $entryType `
+            -Message "DCDiag Test: $TestName`nStatus: $Status`n`nDetails:`n$Details"
+    }
+    catch {
+        Write-Host "[Warning] Impossible d'écrire dans l'Event Log: $_" -ForegroundColor Yellow
+    }
 }
