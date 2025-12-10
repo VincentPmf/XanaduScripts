@@ -71,22 +71,18 @@ function Get-DCDiagResults {
         "AD"  { $ADTests }
         "All" { $DCTests + $ADTests }
     }
-    Write-Host "Tests à exécuter: $($DCDiagTestsToRun.Count)" -ForegroundColor Magenta  # DEBUG
     foreach ($DCTest in $DCDiagTestsToRun) {
-Write-Host "Running: $DCTest" -ForegroundColor Gray  # DEBUG
 
 
         $outputFile = "$env:TEMP\dc-diag-$DCTest.txt"
         $DCDiag = Start-Process -FilePath "DCDiag.exe" -ArgumentList "/test:$DCTest", "/f:$outputFile" -PassThru -Wait -NoNewWindow
 
-Write-Host "Exit code: $($DCDiag.ExitCode)" -ForegroundColor Gray  # DEBUG
         if ($DCDiag.ExitCode -ne 0) {
             Write-Host "[Error] Running $DCTest!" -ForegroundColor Red
             continue
         }
 
         $RawResult = Get-Content -Path $outputFile | Where-Object { $_.Trim() }
-Write-Host "Lignes lues: $($RawResult.Count)" -ForegroundColor Gray  # DEBUG
         $StatusLine = $RawResult | Where-Object { $_ -match "\. .* test $DCTest" }
         $Status = $StatusLine -split ' ' | Where-Object { $_ -like "passed" -or $_ -like "failed" }
 
@@ -150,6 +146,7 @@ function Verify-DCIntegrity {
         # Exécuter les tests
         Write-Host "`nExécution des tests DCDiag (Mode: $Mode)..." -ForegroundColor Cyan
         $TestResults = Get-DCDiagResults -Mode $Mode
+        Write-Host "`nTests terminés $TestRsults"
 
         # Trier les résultats
         $PassingTests = $TestResults | Where-Object { $_.Status -match "pass" }
