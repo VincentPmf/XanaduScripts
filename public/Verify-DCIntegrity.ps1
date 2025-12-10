@@ -99,6 +99,7 @@ function Get-DCDiagResults {
                 break
             }
         }
+        Write-Host "[Info] Test '$DCTest' status: $Status" -ForegroundColor Cyan
 
         $results += [PSCustomObject]@{
             Test   = $DCTest
@@ -159,6 +160,7 @@ function Verify-DCIntegrity {
         # Exécuter les tests
         Write-Host "`nExécution des tests DCDiag (Mode: $Mode)..." -ForegroundColor Cyan
         $TestResults = Get-DCDiagResults -Mode $mode
+
 
         # Trier les résultats
         $PassingTests = $TestResults | Where-Object { $_.Status -match "pass" }
