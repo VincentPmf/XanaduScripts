@@ -44,7 +44,7 @@ function Get-DCDiagResults {
         [string]$Mode
     )
 
-    $results = @()
+    $results = [PSCustomObject]@()
 
     $ADTests = @(
         "Replications",        # Réplication AD
