@@ -99,7 +99,7 @@ function Get-DCDiagResults {
                 break
             }
         }
-        Write-Host "[Info] Test '$DCTest' status: $Status" -ForegroundColor Cyan
+        Write-Host "[Info] Test '$DCTest' status: $Status, `nRaw : $($RawResult -join "`n")" -ForegroundColor Cyan
 
         $results += [PSCustomObject]@{
             Test   = $DCTest
