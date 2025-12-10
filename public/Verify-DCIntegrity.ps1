@@ -98,6 +98,7 @@ function Get-DCDiagResults {
 
         Remove-Item -Path $outputFile -ErrorAction SilentlyContinue
     }
+    Write-Host "`nDCDiag Tests Completed. $($results.Count) tests run." -ForegroundColor Green
     return $results
 }
 
