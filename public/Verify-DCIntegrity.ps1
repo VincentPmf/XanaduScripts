@@ -44,7 +44,7 @@ function Get-DCDiagResults {
         [string]$Mode
     )
 
-    $results = [PSCustomObject]@()
+    $results = @()
 
     $ADTests = @(
         "Replications",        # Réplication AD
@@ -159,11 +159,6 @@ function Verify-DCIntegrity {
         # Exécuter les tests
         Write-Host "`nExécution des tests DCDiag (Mode: $Mode)..." -ForegroundColor Cyan
         $TestResults = Get-DCDiagResults -Mode $mode
-
-        $RawResult = Get-Content
-        Write-Host "=== DEBUG $DCTest ===" -ForegroundColor Yellow
-        $RawResult | ForEach-Object { Write-Host $_ }
-        Write-Host "=== FIN DEBUG ===" -ForegroundColor Yellow
 
         # Trier les résultats
         $PassingTests = $TestResults | Where-Object { $_.Status -match "pass" }
