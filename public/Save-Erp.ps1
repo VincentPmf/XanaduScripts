@@ -16,7 +16,7 @@
         [string]$Mode = "All"
     )
 
-    bbegin {
+    begin {
         # CONFIG
         $script:DbPath  = "C:\inetpub\wwwroot\XanaudERPBack\cmd\xanadu.db"
         $script:NasRoot = "\\192.168.1.98\Partage\commun\backups\sqlite"
