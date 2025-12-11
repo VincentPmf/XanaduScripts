@@ -8,8 +8,6 @@
     RequiredModules = @('ActiveDirectory')
 
     FunctionsToExport = @(
-        'Start-UserManagement',
-        'Verify-DCIntegrity',
         'Save-Erp'
     )
 }

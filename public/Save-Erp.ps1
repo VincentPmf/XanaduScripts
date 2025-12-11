@@ -1,4 +1,4 @@
-﻿function Manage-SQLiteBackup {
+﻿function Save-Erp {
     <#
     .SYNOPSIS
         Sauvegarde et vérifie la base SQLite de XanaduERP sur le NAS.
@@ -9,18 +9,17 @@
     .NOTES
         Auteur : Vincent CAUSSE
     #>
-    [CmdletBinding()]
-    param (
+    [CmdletBinding(DefaultParameterSetName='Encode')]
+     param(
         [Parameter()]
         [ValidateSet("All", "Save", "Verify")]
         [string]$Mode = "All"
     )
 
     begin {
-        # --- CONFIG GLOBALE ---
-        $script:DbPath      = "C:\inetpub\wwwroot\XanaudERPBack\cmd\xanadu.db"
-        $script:NasRoot     = "X:\backups_sqlite"
-        $script:ServiceName = "XanaduApi"   # commente si pas de service
+        # CONFIG : adapte juste ces deux lignes si besoin
+        $script:DbPath  = "C:\inetpub\wwwroot\XanaudERPBack\cmd\xanadu.db"
+        $script:NasRoot = "\\192.168.1.98\Partage\backups_sqlite"
 
         function Write-Info($msg) {
             Write-Host "[INFO] $msg"
@@ -30,52 +29,43 @@
             Write-Host "[ERROR] $msg" -ForegroundColor Red
         }
 
-        function Ensure-NasPath {
+        function Ensure-Paths {
+            if (-not (Test-Path $script:DbPath)) {
+                Write-ErrorMsg "Base SQLite introuvable : $($script:DbPath)"
+                throw "DbMissing"
+            }
             if (-not (Test-Path $script:NasRoot)) {
-                Write-Info "Dossier NAS '$($script:NasRoot)' inexistant, création..."
-                New-Item -ItemType Directory -Path $script:NasRoot | Out-Null
+                Write-ErrorMsg "Dossier NAS inexistant : $($script:NasRoot)"
+                throw "NasMissing"
             }
         }
 
         function Save-Database {
-            if (-not (Test-Path $script:DbPath)) {
-                Write-ErrorMsg "Base SQLite introuvable : $($script:DbPath)"
+            try {
+                Ensure-Paths
+            } catch {
                 return
             }
-
-            Ensure-NasPath
 
             $timestamp   = (Get-Date -Format "yyyy-MM-dd_HH-mm")
             $destination = Join-Path $script:NasRoot "xanadu_$timestamp.db"
 
-            Write-Info "Arrêt du service API pour sécuriser la copie..."
-            try {
-                net stop $script:ServiceName | Out-Null
-            } catch {
-                Write-ErrorMsg "Impossible d'arrêter le service $($script:ServiceName)."
-            }
-
-            Start-Sleep -Seconds 1
-
             Write-Info "Copie de '$($script:DbPath)' vers '$destination'..."
             Copy-Item $script:DbPath -Destination $destination -Force
-
-            Write-Info "Redémarrage du service API..."
-            try {
-                net start $script:ServiceName | Out-Null
-            } catch {
-                Write-ErrorMsg "Impossible de démarrer le service $($script:ServiceName)."
-            }
 
             Write-Info "Sauvegarde terminée : $destination"
 
             # Rotation 30 jours
-            $oldBackups = Get-ChildItem $script:NasRoot -Filter "xanadu_*.db" |
-                Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-30) }
+            try {
+                $oldBackups = Get-ChildItem $script:NasRoot -Filter "xanadu_*.db" |
+                    Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-30) }
 
-            foreach ($file in $oldBackups) {
-                Write-Info "Suppression ancienne sauvegarde : $($file.FullName)"
-                Remove-Item $file.FullName -Force
+                foreach ($file in $oldBackups) {
+                    Write-Info "Suppression ancienne sauvegarde : $($file.FullName)"
+                    Remove-Item $file.FullName -Force
+                }
+            } catch {
+                Write-ErrorMsg "Impossible de gérer la rotation dans $($script:NasRoot)."
             }
         }
 
@@ -108,16 +98,9 @@
 
     process {
         switch ($Mode) {
-            "Save" {
-                Save-Database
-            }
-            "Verify" {
-                Verify-LastBackup
-            }
-            "All" {
-                Save-Database
-                Verify-LastBackup
-            }
+            "Save"   { Save-Database }
+            "Verify" { Verify-LastBackup }
+            "All"    { Save-Database; Verify-LastBackup }
         }
     }
 
