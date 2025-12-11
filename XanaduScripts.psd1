@@ -5,7 +5,6 @@
     Author = 'Vincent CAUSSE'
     Description = 'Gestion des utilisateurs AD pour Xanadu'
     PowerShellVersion = '5.1'
-    RequiredModules = @('ActiveDirectory')
 
     FunctionsToExport = @(
         'Save-Erp'
