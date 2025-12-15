@@ -1,8 +1,29 @@
 ﻿<#
 .SYNOPSIS
-    Module XanaduScripts - Point d'entrée.
+    Module XanaduScripts – point d’entrée principal.
+
 .DESCRIPTION
-    Charge tous les fichiers du module (Public + Private).
+    Ce fichier constitue le point d’entrée du module PowerShell XanaduScripts.
+    Il initialise l’environnement d’exécution (encodage), puis charge
+    dynamiquement l’ensemble des scripts du module organisés en deux catégories :
+
+      - Private : fonctions internes non exportées
+      - Public  : fonctions exposées à l’utilisateur final
+
+    Seules les fonctions publiques sont exportées via Export-ModuleMember,
+    garantissant une séparation stricte entre l’API du module et ses
+    implémentations internes.
+
+.NOTES
+    Structure attendue du module :
+
+      XanaduScripts\
+      ├─ XanaduScripts.psm1   (ce fichier)
+      ├─ Public\              (fonctions exportées)
+      └─ Private\             (fonctions internes)
+
+    Auteur   : Projet Xanadu
+    Version  : 1.0
 #>
 
 $ModuleRoot = $PSScriptRoot

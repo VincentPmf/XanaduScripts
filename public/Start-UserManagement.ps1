@@ -1,15 +1,45 @@
 ﻿<#
 .SYNOPSIS
-    Gestion des utilisateurs Active Directory - Point d'entrée.
+    Gestion des utilisateurs Active Directory pour le domaine Xanadu.
 
 .DESCRIPTION
-    Script interactif pour créer, modifier ou supprimer des utilisateurs AD.
+    Script interactif permettant aux administrateurs de créer, modifier, supprimer,
+    lister les utilisateurs Active Directory et réinitialiser leurs mots de passe.
+    Peut être utilisé de manière interactive (menu) ou en mode non interactif
+    via des paramètres (Create, Update, Delete, List).
+
+.PARAMETER Action
+    Action à effectuer : Create, Update, Delete, List.
+    Si ce paramètre est omis, un menu interactif est affiché.
+
+.PARAMETER Nom
+    Nom de famille de l'utilisateur cible (mode non interactif).
+
+.PARAMETER Prenom
+    Prénom de l'utilisateur cible (mode non interactif).
+
+.PARAMETER Group
+    Groupe ou OU logique dans lequel placer l'utilisateur lors de la création.
+
+.PARAMETER SamAccountName
+    Identifiant SamAccountName de l'utilisateur cible pour les opérations ciblées.
 
 .EXAMPLE
     .\UserManagement.ps1
-    .\UserManagement.ps1 -Action "Create" -Nom "Doe" -Prenom "John"
-#>
 
+    Lance le script en mode interactif avec menu.
+
+.EXAMPLE
+    .\UserManagement.ps1 -Action "Create" -Nom "Doe" -Prenom "John" -Group "Compta"
+
+    Crée un nouvel utilisateur John Doe dans le groupe/OU "Compta" sans passer par le menu.
+
+.NOTES
+    Auteur   : Ton Nom
+    Version  : 1.0
+    Date     : 2025-12-15
+    Contexte : Projet CESI – XANADU (gestion des comptes AD)
+#>
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::InputEncoding = [System.Text.Encoding]::UTF8
@@ -18,8 +48,22 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 function Show-MainMenu {
     <#
     .SYNOPSIS
-        Affiche le menu principal et retourne le choix.
+        Affiche le menu principal de gestion des utilisateurs.
+
+    .DESCRIPTION
+        Affiche un menu interactif permettant de choisir une action
+        (création, modification, suppression, listing, reset mot de passe ou sortie)
+        et retourne le choix de l'administrateur sous forme de chaîne.
+
+    .OUTPUTS
+        System.String. Libellé de l'option sélectionnée.
+
+    .EXAMPLE
+        $choice = Show-MainMenu
+
+        Affiche le menu et stocke le choix de l'administrateur dans $choice.
     #>
+
     $options = @(
         "Créer un utilisateur",
         "Modifier un utilisateur",
@@ -35,7 +79,49 @@ function Show-MainMenu {
 function Invoke-CreateUser {
     <#
     .SYNOPSIS
-        Lance le processus de création d'un utilisateur.
+        Lance le processus de création d'un utilisateur AD Xanadu.
+
+    .DESCRIPTION
+        Invoke-CreateUser permet de créer un utilisateur Active Directory en mode
+        interactif ou semi-automatique. Si les paramètres Nom, Prenom ou Group
+        ne sont pas fournis, ils sont demandés à l'administrateur.
+        L'utilisateur est créé avec un SamAccountName construit à partir du prénom
+        et du nom, et positionné dans l'OU par défaut ou dans le groupe sélectionné.
+
+    .PARAMETER Nom
+        Nom de famille de l'utilisateur à créer.
+        Si omis, le script le demande à l'administrateur.
+
+    .PARAMETER Prenom
+        Prénom de l'utilisateur à créer.
+        Si omis, le script le demande à l'administrateur.
+
+    .PARAMETER Group
+        Groupe/OU fonctionnel dans lequel créer l'utilisateur.
+        Si la valeur fournie ne correspond pas à une entrée de $myGroups,
+        un menu interactif permet de sélectionner le bon groupe.
+
+    .EXAMPLE
+        Invoke-CreateUser -Nom "Doe" -Prenom "John" -Group "Compta"
+
+        Crée l'utilisateur John Doe dans le groupe "Compta" sans demandes interactives.
+
+    .EXAMPLE
+        Invoke-CreateUser
+
+        Lance la création d'utilisateur en demandant le nom, le prénom
+        et le groupe à l'administrateur.
+
+    .INPUTS
+        System.String
+
+    .OUTPUTS
+        Aucun objet retourné. Crée un utilisateur AD et affiche les informations
+        de création à l'écran.
+
+    .NOTES
+        Nécessite le module ActiveDirectory, la fonction New-XanaduUser
+        et la variable globale $myGroups correctement initialisée.
     #>
     [CmdletBinding()]
     param (
@@ -91,9 +177,49 @@ function Invoke-CreateUser {
 }
 
 function Invoke-UpdateUser {
-    <#
+        <#
     .SYNOPSIS
-        Lance le processus de modification d'un utilisateur.
+        Lance le processus de modification d'un utilisateur AD Xanadu.
+
+    .DESCRIPTION
+        Invoke-UpdateUser permet de créer un utilisateur Active Directory en mode
+        interactif ou semi-automatique. Si les paramètres Nom, Prenom ou Group
+        ne sont pas fournis, ils sont demandés à l'administrateur.
+
+    .PARAMETER Nom
+        Nom de famille de l'utilisateur à modifier.
+        Si omis, le script le demande à l'administrateur.
+
+    .PARAMETER Prenom
+        Prénom de l'utilisateur à modifier.
+        Si omis, le script le demande à l'administrateur.
+
+    .PARAMETER Group
+        Groupe/OU fonctionnel dans lequel modifier l'utilisateur.
+        Si la valeur fournie ne correspond pas à une entrée de $myGroups,
+        un menu interactif permet de sélectionner le bon groupe.
+
+    .EXAMPLE
+        Invoke-UpdateUser -Nom "Doe" -Prenom "John" -Group "Compta"
+
+        Modifie l'utilisateur John Doe dans le groupe "Compta" sans demandes interactives.
+
+    .EXAMPLE
+        Invoke-UpdateUser
+
+        Lance la création d'utilisateur en demandant le nom, le prénom
+        et le groupe à l'administrateur.
+
+    .INPUTS
+        System.String
+
+    .OUTPUTS
+        Aucun objet retourné. Modifie un utilisateur AD et affiche les informations
+        de création à l'écran.
+
+    .NOTES
+        Nécessite le module ActiveDirectory,
+        et la variable globale $myGroups correctement initialisée.
     #>
     [CmdletBinding()]
     param (
@@ -244,7 +370,36 @@ function Invoke-UpdateUser {
 function Invoke-DeleteUser {
     <#
     .SYNOPSIS
-        Lance le processus de suppression d'un utilisateur.
+        Lance le processus de suppression d'un utilisateur Active Directory.
+
+    .DESCRIPTION
+        Invoke-DeleteUser permet de supprimer un utilisateur Active Directory
+        sélectionné via une interface interactive. L'utilisateur est choisi
+        à l'aide de la fonction Select-XanaduUser, puis une confirmation explicite
+        est demandée avant toute suppression afin d'éviter une action destructive
+        accidentelle.
+
+        Si aucun utilisateur n'est sélectionné ou si la confirmation est refusée,
+        l'opération est annulée sans modification du système.
+
+    .EXAMPLE
+        Invoke-DeleteUser
+
+        Ouvre un sélecteur d'utilisateurs, demande confirmation, puis supprime
+        l'utilisateur Active Directory sélectionné.
+
+    .INPUTS
+        Aucun.
+
+    .OUTPUTS
+        Aucun objet retourné.
+        Affiche des messages d'information et effectue une suppression dans l'AD.
+
+    .NOTES
+        - Action destructive irréversible sans restauration depuis sauvegarde AD.
+        - Nécessite le module ActiveDirectory.
+        - Nécessite des droits suffisants pour supprimer des comptes utilisateurs.
+        - Repose sur la fonction Select-XanaduUser pour la sélection de l'utilisateur.
     #>
 
     $user = Select-XanaduUser
@@ -271,7 +426,37 @@ function Invoke-ListUsers {
 function Invoke-ResetUserPassword {
     <#
     .SYNOPSIS
-        Lance le processus de réinitialisation du mot de passe d'un utilisateur.
+        Lance le processus de réinitialisation du mot de passe d'un utilisateur Active Directory.
+
+    .DESCRIPTION
+        Invoke-ResetUserPassword permet de réinitialiser le mot de passe d’un utilisateur
+        Active Directory sélectionné via une interface interactive. Le script génère
+        automatiquement un mot de passe temporaire basé sur une règle prédéfinie,
+        applique ce mot de passe au compte et force l’utilisateur à le modifier
+        lors de sa prochaine connexion.
+
+        En cas d’erreur ou d’annulation de la sélection, aucune modification n’est effectuée.
+
+    .EXAMPLE
+        Invoke-ResetUserPassword
+
+        Ouvre un sélecteur d’utilisateurs, réinitialise le mot de passe du compte
+        sélectionné et force le changement de mot de passe à la prochaine ouverture
+        de session.
+
+    .INPUTS
+        Aucun.
+
+    .OUTPUTS
+        Aucun objet retourné.
+        Affiche des messages d’information et modifie le mot de passe dans l’Active Directory.
+
+    .NOTES
+        - Action sensible impactant la sécurité du compte utilisateur.
+        - Le mot de passe généré est temporaire et doit être changé à la prochaine connexion.
+        - Nécessite le module ActiveDirectory.
+        - Nécessite des droits suffisants pour réinitialiser les mots de passe utilisateurs.
+        - Repose sur la fonction Select-XanaduUser pour la sélection de l’utilisateur.
     #>
     [CmdletBinding()]
 
@@ -298,9 +483,52 @@ function Invoke-ResetUserPassword {
 function Start-UserManagement {
     <#
     .SYNOPSIS
-        Point d'entrée principal du script.
+        Point d'entrée principal pour la gestion des utilisateurs AD Xanadu.
+
+    .DESCRIPTION
+        Start-UserManagement permet de gérer les utilisateurs Active Directory
+        via un menu interactif ou en mode non interactif grâce au paramètre -Action.
+        Les opérations possibles sont :
+          - Create : création d'un utilisateur
+          - Update : modification d'un utilisateur existant
+          - Delete : suppression d'un utilisateur
+          - List   : affichage d'une arborescence des utilisateurs
+
+    .PARAMETER Action
+        Action à effectuer : Create, Update, Delete, List.
+        Si omis, le script lance le menu interactif.
+
+    .PARAMETER Nom
+        Nom de famille de l'utilisateur ciblé (mode non interactif).
+
+    .PARAMETER Prenom
+        Prénom de l'utilisateur ciblé (mode non interactif).
+
+    .PARAMETER Group
+        Groupe ou unité d'organisation logique pour la création d'utilisateur.
+
+    .PARAMETER SamAccountName
+        SamAccountName de l'utilisateur ciblé. Prioritaire sur Nom/Prenom.
+
     .EXAMPLE
         Start-UserManagement
+
+        Lance le menu interactif de gestion des utilisateurs.
+
+    .EXAMPLE
+        Start-UserManagement -Action Create -Nom "Doe" -Prenom "John" -Group "Compta"
+
+        Crée l'utilisateur John Doe dans le groupe "Compta" sans afficher le menu.
+
+    .INPUTS
+        System.String
+
+    .OUTPUTS
+        Aucun objet retourné. Affiche des informations à l'écran et effectue
+        des opérations sur les comptes AD.
+
+    .NOTES
+        Nécessite le module ActiveDirectory et des droits d'administration adéquats.
     #>
     [CmdletBinding(DefaultParameterSetName='Encode')]
     param(
