@@ -30,18 +30,30 @@
     Write-Ok "Prérequis validés" -Level Success
 }
 
-function Test-Ssh($config) {
+unction Test-Ssh {
+    param([Parameter(Mandatory=$true)]$config)
+
     Assert-Command ssh
     Assert-File $config.KeyPath "Clé privée SSH"
 
-    Write-Info "Test SSH $($config.KeyPath) vers ${config.NasUser}@${config.NasHost} (sans mot de passe)..."
-    $r = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes -o ConnectTimeout=8 "${config.NasUser}@${config.NasHost}" "echo OK" 2>&1
+    $target = "{0}@{1}" -f $config['NasUser'], $config['NasHost']
+    $r = & ssh -i $config['KeyPath'] -p $config['NasPort'] -o BatchMode=yes -o ConnectTimeout=8 $target "echo OK" 2>&1
+
+    Write-Info "Test SSH vers $target (sans mot de passe)..."
+
+    $r = & ssh `
+        -i $config.KeyPath `
+        -p $config.NasPort `
+        -o BatchMode=yes `
+        -o ConnectTimeout=8 `
+        $target `
+        "echo OK" 2>&1
 
     if ($LASTEXITCODE -ne 0 -or ($r -notmatch "OK")) {
         throw "SSH KO (clé non utilisée / accès refusé / réseau): $r"
     }
 
-    Ok "SSH OK"
+    Write-Ok "SSH OK"
 }
 
 
