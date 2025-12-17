@@ -30,7 +30,7 @@
     Write-Ok "Prérequis validés" -Level Success
 }
 
-unction Test-Ssh {
+function Test-Ssh {
     param([Parameter(Mandatory=$true)]$config)
 
     Assert-Command ssh
