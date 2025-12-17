@@ -81,17 +81,17 @@
             Test-Prerequisites $config
             # 2) Nom de fichier horodaté pour garder un historique lisible
             $ts = Get-Date -Format "yyyy-MM-dd_HH-mm"
-            $remoteFile = "$NasDir/xanadu_$ts.db"
+            $remoteFile = "$($config.NasDir)/xanadu_$ts.db"
 
             # 3) Transfert SCP
             Write-Info "Transfert de la base vers le NAS..."
-            Write-Info "Source : $DbPath"
+            Write-Info "Source : $($config.DbPath)"
             Write-Info "Cible  : $remoteFile"
 
             # IMPORTANT : construction du target scp, sinon PowerShell peut casser le ':'.
             $scpTarget = "$($config.NasUser)@$($config.NasHost):$remoteFile"
 
-            $scpOut = & scp -i $config.KeyPath -P $config.NasPort -v -- "$config.DbPath" "$scpTarget" 2>&1
+            $scpOut = & scp -i $config.KeyPath -P $config.NasPort -v -- "$($config.DbPath)" "$scpTarget" 2>&1
             $code = $LASTEXITCODE
 
             if ($code -ne 0) {
