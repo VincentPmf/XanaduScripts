@@ -141,6 +141,7 @@
     }
 
     process {
+        # Exécution selon le mode demandé
         switch ($Mode) {
             "Save"   { Save-Database }
             "Verify" { Verify-LastBackup }

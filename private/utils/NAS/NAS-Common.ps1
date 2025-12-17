@@ -69,11 +69,18 @@ function Check-RemoteDir {
 
     $cmd = "test -d '$nasDir' && test -w '$nasDir' && echo OK || echo NO"
 
-    $r = & ssh `
+    $$r = & ssh `
         -i $config.KeyPath `
         -p $config.NasPort `
         -o BatchMode=yes `
+        -o PreferredAuthentications=publickey `
+        -o PasswordAuthentication=no `
+        -o KbdInteractiveAuthentication=no `
+        -o NumberOfPasswordPrompts=0 `
+        -o StrictHostKeyChecking=accept-new `
         -o ConnectTimeout=8 `
+        -o ServerAliveInterval=5 `
+        -o ServerAliveCountMax=2 `
         $target `
         $cmd 2>&1
 
