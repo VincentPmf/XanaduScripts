@@ -34,7 +34,7 @@ function Test-Ssh($config) {
     Assert-Command ssh
     Assert-File $config.KeyPath "Clé privée SSH"
 
-    Info "Test SSH vers ${config.NasUser}@${config.NasHost} (sans mot de passe)..."
+    Write-Info "Test SSH vers ${config.NasUser}@${config.NasHost} (sans mot de passe)..."
     $r = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes -o ConnectTimeout=8 "${config.NasUser}@${config.NasHost}" "echo OK" 2>&1
 
     if ($LASTEXITCODE -ne 0 -or ($r -notmatch "OK")) {
@@ -46,7 +46,7 @@ function Test-Ssh($config) {
 
 
 function Check-RemoteDir($config) {
-    Info "Vérification du dossier de destination sur le NAS..."
+    Write-Info "Vérification du dossier de destination sur le NAS..."
     $cmd = "test -d '$($config.NasDir)' && test -w '$($config.NasDir)' && echo OK || echo NO"
     $r = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes "${config.NasUser}@${config.NasHost}" $cmd 2>&1
 
@@ -54,7 +54,7 @@ function Check-RemoteDir($config) {
         throw "Dossier NAS inaccessible: $($config.NasDir) (existe ? droits ?). Réponse: $r"
     }
 
-    Ok "Dossier NAS OK"
+    Write-Ok "Dossier NAS OK"
 }
 
 function Assert-File($path, $label){
