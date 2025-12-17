@@ -76,17 +76,6 @@
             Compression = $true
         }
 
-
-        # Affiche un message d'information formaté
-        function Write-Info($msg) {
-            Write-Host "[INFO] $msg"
-        }
-
-        # Affiche un message d'erreur formaté en rouge
-        function Write-ErrorMsg($msg) {
-            Write-Host "[ERROR] $msg" -ForegroundColor Red
-        }
-
         # Fonction interne pour sauvegarder la base SQLite sur le NAS
         function Save-Database {
             Assert-Command scp
@@ -113,7 +102,7 @@
                 throw "SCP KO (code=$LASTEXITCODE). Vérifier réseau / droits / chemin NAS."
             }
 
-            Ok "Sauvegarde envoyée"
+            Write-O "Sauvegarde envoyée"
 
             # 4) Rotation : suppression des sauvegardes trop anciennes sur le NAS
             Info "Rotation: suppression des sauvegardes de plus de $KeepDays jours..."
@@ -123,7 +112,7 @@
                 throw "Rotation KO: $r"
             }
 
-            Ok "Rotation OK"
+            Write-Ok "Rotation OK"
         }
 
         # Fonction interne pour vérifier et afficher la dernière sauvegarde disponible
@@ -151,9 +140,9 @@
             }
 
             $parts = $meta.Trim() -split "\|"
-            Ok "Dernière sauvegarde: $($parts[0])"
-            Ok "Taille: $($parts[1]) octets"
-            Ok "Date : $($parts[2])"
+            Write-Ok "Dernière sauvegarde: $($parts[0])"
+            Write-Ok "Taille: $($parts[1]) octets"
+            Write-Ok "Date : $($parts[2])"
         }
     }
 
@@ -169,16 +158,16 @@
         }
         catch {
             $success = $false
-            Err $_.Exception.Message
+            Write-Err $_.Exception.Message
         }
 
         # Code de sortie utile pour les tâches planifiées :
         # - 0 : OK
         # - 1 : KO
         if ($success) {
-            Ok "FIN: OK"
+            Write-Ok "FIN: OK"
         } else {
-            Err "FIN: KO"
+            Write-Err "FIN: KO"
         }
     }
 }
