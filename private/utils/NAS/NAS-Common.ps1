@@ -12,7 +12,7 @@
 
     # 1) Pré-checks : la sauvegarde ne se lance que si tout est OK
     Test-Ssh $config
-    Check-RemoteDir
+    Check-RemoteDir $config
 
     # Vérifier fichiers locaux
     if (-not (Test-Path -LiteralPath $config.DbPath)) {
