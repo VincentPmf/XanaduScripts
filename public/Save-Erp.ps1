@@ -59,8 +59,23 @@
 
     begin {
         # CONFIGURATION : chemins de la base locale et du dossier de sauvegarde NAS
-        $script:DbPath  = "C:\inetpub\wwwroot\XanaudERPBack\cmd\xanadu.db"
-        $script:NasRoot = "\\192.168.1.98\Partage\commun\backups_sqlite"
+        $config = @{
+            # Chemins locaux
+            DbPath      = "C:\inetpub\wwwroot\XanaudERPBack\cmd\xanadu.db"
+            KeyPath     = "$env:USERPROFILE\.ssh\id_ed25519"
+
+            # Configuration NAS
+            NasUser     = "svc_backup_iis"
+            NasHost     = "192.168.1.98"
+            NasPort     = 22
+            NasDir      = "/mnt/pool_xanadu/backups/iis/backups_sqlite"
+
+            # Paramètres de sauvegarde
+            KeepDays    = 30
+            Timeout     = 10
+            Compression = $true
+        }
+
 
         # Affiche un message d'information formaté
         function Write-Info($msg) {
@@ -74,68 +89,98 @@
 
         # Fonction interne pour sauvegarder la base SQLite sur le NAS
         function Save-Database {
-            # Vérifie que la base SQLite locale existe
-            if (-not (Test-Path $script:DbPath)) {
-                Write-ErrorMsg "Base SQLite introuvable : $($script:DbPath)"
-                return
+            Assert-Command scp
+            Assert-File $DbPath "Base SQLite"
+
+            # 1) Pré-checks : la sauvegarde ne se lance que si tout est OK
+            Test-Ssh
+            Check-RemoteDir
+
+            # 2) Nom de fichier horodaté pour garder un historique lisible
+            $ts = Get-Date -Format "yyyy-MM-dd_HH-mm"
+            $remoteFile = "$NasDir/xanadu_$ts.db"
+
+            # 3) Transfert SCP
+            Info "Transfert de la base vers le NAS..."
+            Info "Source : $DbPath"
+            Info "Cible  : $remoteFile"
+
+            # IMPORTANT : construction du target scp, sinon PowerShell peut casser le ':'.
+            $scpTarget = "${NasUser}@${NasHost}:$remoteFile"
+
+            & scp -i $KeyPath -P $NasPort -q -- "$DbPath" "$scpTarget"
+            if ($LASTEXITCODE -ne 0) {
+                throw "SCP KO (code=$LASTEXITCODE). Vérifier réseau / droits / chemin NAS."
             }
-            # Vérifie que le dossier de sauvegarde NAS existe
-            if (-not (Test-Path $script:NasRoot)) {
-                Write-ErrorMsg "Dossier NAS inexistant : $($script:NasRoot)"
-                return
+
+            Ok "Sauvegarde envoyée"
+
+            # 4) Rotation : suppression des sauvegardes trop anciennes sur le NAS
+            Info "Rotation: suppression des sauvegardes de plus de $KeepDays jours..."
+            $rotateCmd = "find '$NasDir' -maxdepth 1 -type f -name 'xanadu_*.db' -mtime +$KeepDays -print -delete; echo OK"
+            $r = & ssh -i $KeyPath -p $NasPort -o BatchMode=yes "${NasUser}@${NasHost}" $rotateCmd 2>&1
+            if ($LASTEXITCODE -ne 0 -or ($r -notmatch "OK")) {
+                throw "Rotation KO: $r"
             }
 
-            # Récupère le chemin complet de la base et prépare le nom de sauvegarde horodaté
-            $srcObj   = Get-Item $script:DbPath
-            $src      = $srcObj.FullName
-            $ts       = Get-Date -Format "yyyy-MM-dd_HH-mm"
-            $destFile = Join-Path $script:NasRoot "xanadu_$ts.db"
-
-            # Copie la base SQLite vers le NAS avec le nom horodaté
-            Write-Info "Copie de '$src' vers '$destFile'..."
-            Copy-Item -LiteralPath $src -Destination $destFile -Force
-            Write-Info "Sauvegarde terminée."
-
-            # Supprime les sauvegardes de plus de 30 jours (rotation)
-            Get-ChildItem $script:NasRoot -Filter "xanadu_*.db" |
-                Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-30) } |
-                ForEach-Object {
-                    Write-Info "Suppression ancienne sauvegarde : $($_.FullName)"
-                    Remove-Item $_.FullName -Force
-                }
+            Ok "Rotation OK"
         }
 
         # Fonction interne pour vérifier et afficher la dernière sauvegarde disponible
         function Verify-LastBackup {
-            if (-not (Test-Path $script:NasRoot)) {
-                Write-ErrorMsg "Dossier de sauvegarde NAS inexistant : $($script:NasRoot)"
+            Test-Ssh
+            Check-RemoteDir
+
+            Info "Recherche de la dernière sauvegarde sur le NAS..."
+            $cmd = "ls -1t '$NasDir'/xanadu_*.db 2>/dev/null | head -n 1"
+            $last = & ssh -i $KeyPath -p $NasPort -o BatchMode=yes "${NasUser}@${NasHost}" $cmd 2>&1
+
+            # Si aucune sauvegarde n’existe encore, on ne crash pas : on affiche un message clair.
+            if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($last)) {
+                Warn "Aucune sauvegarde trouvée dans $NasDir (normal si premier lancement)."
                 return
             }
 
-            # Vérifie que le dossier de sauvegarde NAS existe
-            $last = Get-ChildItem $script:NasRoot -Filter "xanadu_*.db" |
-                    Sort-Object LastWriteTime -Descending |
-                    Select-Object -First 1
+            $last = $last.Trim()
 
-            # Si aucune sauvegarde n'est trouvée, affiche une erreur
-            if (-not $last) {
-                Write-ErrorMsg "Aucune sauvegarde trouvée dans $($script:NasRoot)."
-                return
+            # Affiche les métadonnées (nom, taille, date) pour prouver que la sauvegarde existe.
+            $cmd2 = "stat -c '%n|%s|%y' '$last'"
+            $meta = & ssh -i $KeyPath -p $NasPort -o BatchMode=yes "${NasUser}@${NasHost}" $cmd2 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                throw "Impossible de lire les métadonnées: $meta"
             }
 
-            # Affiche les informations sur la dernière sauvegarde (chemin, taille, date)
-            Write-Info "Dernière sauvegarde : $($last.FullName)"
-            Write-Info ("Taille : {0:N0} octets" -f $last.Length)
-            Write-Info ("Date  : {0}" -f $last.LastWriteTime)
+            $parts = $meta.Trim() -split "\|"
+            Ok "Dernière sauvegarde: $($parts[0])"
+            Ok "Taille: $($parts[1]) octets"
+            Ok "Date : $($parts[2])"
         }
     }
 
     process {
-        # Exécute l'action demandée selon le mode choisi
-        switch ($Mode) {
-            "Save"   { Save-Database }
-            "Verify" { Verify-LastBackup }
-            "All"    { Save-Database; Verify-LastBackup }
+                $success = $true
+
+        try {
+            switch ($Mode) {
+                "Save"   { Save-Database }
+                "Verify" { Verify-LastBackup }
+                "All"    { Save-Database; Verify-LastBackup }
+            }
+        }
+        catch {
+            $success = $false
+            Err $_.Exception.Message
+        }
+
+        # Code de sortie utile pour les tâches planifiées :
+        # - 0 : OK
+        # - 1 : KO
+        if ($success) {
+            Ok "FIN: OK"
+            return
+        } else {
+            Err "FIN: KO"
+            exit 1
         }
     }
 }

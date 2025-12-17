@@ -54,9 +54,7 @@ $PublicFunctions = Get-ChildItem -Path "$ModuleRoot\Public" -Recurse -Filter "*.
 
 foreach ($file in $PublicFunctions) {
     try {
-        Write-Host "Chargement de: $($file.Name)" -ForegroundColor Cyan
         . $file.FullName
-        Write-Host "OK: $($file.Name)" -ForegroundColor Green
     }
     catch {
         Write-Host "ERREUR dans $($file.Name): $_" -ForegroundColor Red

@@ -4,6 +4,10 @@
 .AppleDouble
 .LSOverride
 
+# files backup
+backup/
+
+
 # Icon must end with two \r
 Icon
 
