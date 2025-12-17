@@ -30,12 +30,12 @@
     Write-Ok "Prérequis validés" -Level Success
 }
 
-function Test-Ssh {
+function Test-Ssh($config) {
     Assert-Command ssh
-    Assert-File $KeyPath "Clé privée SSH"
+    Assert-File $config.KeyPath "Clé privée SSH"
 
-    Info "Test SSH vers ${NasUser}@${NasHost} (sans mot de passe)..."
-    $r = & ssh -i $KeyPath -p $NasPort -o BatchMode=yes -o ConnectTimeout=8 "${NasUser}@${NasHost}" "echo OK" 2>&1
+    Info "Test SSH vers ${config.NasUser}@${config.NasHost} (sans mot de passe)..."
+    $r = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes -o ConnectTimeout=8 "${config.NasUser}@${config.NasHost}" "echo OK" 2>&1
 
     if ($LASTEXITCODE -ne 0 -or ($r -notmatch "OK")) {
         throw "SSH KO (clé non utilisée / accès refusé / réseau): $r"
@@ -45,13 +45,13 @@ function Test-Ssh {
 }
 
 
-function Check-RemoteDir {
+function Check-RemoteDir($config) {
     Info "Vérification du dossier de destination sur le NAS..."
-    $cmd = "test -d '$NasDir' && test -w '$NasDir' && echo OK || echo NO"
-    $r = & ssh -i $KeyPath -p $NasPort -o BatchMode=yes "${NasUser}@${NasHost}" $cmd 2>&1
+    $cmd = "test -d '$($config.NasDir)' && test -w '$($config.NasDir)' && echo OK || echo NO"
+    $r = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes "${config.NasUser}@${config.NasHost}" $cmd 2>&1
 
     if ($LASTEXITCODE -ne 0 -or ($r -notmatch "OK")) {
-        throw "Dossier NAS inaccessible: $NasDir (existe ? droits ?). Réponse: $r"
+        throw "Dossier NAS inaccessible: $($config.NasDir) (existe ? droits ?). Réponse: $r"
     }
 
     Ok "Dossier NAS OK"
