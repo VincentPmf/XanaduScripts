@@ -89,11 +89,13 @@
             Write-Info "Cible  : $remoteFile"
 
             # IMPORTANT : construction du target scp, sinon PowerShell peut casser le ':'.
-            $scpTarget = "${NasUser}@${NasHost}:$remoteFile"
+            $scpTarget = "$($config.NasUser)@$($config.NasHost):$remoteFile"
 
-            & scp -i $config.KeyPath -P $config.NasPort -q -- "$config.DbPath" "$scpTarget"
-            if ($LASTEXITCODE -ne 0) {
-                throw "SCP KO (code=${LASTEXITCODE}). Vérifier réseau / droits / chemin NAS."
+            $scpOut = & scp -i $config.KeyPath -P $config.NasPort -v -- "$config.DbPath" "$scpTarget" 2>&1
+            $code = $LASTEXITCODE
+
+            if ($code -ne 0) {
+                throw "SCP KO (code=$code). Détails: $scpOut"
             }
 
             Write-Ok "Sauvegarde envoyée"
