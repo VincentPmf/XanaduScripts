@@ -103,22 +103,47 @@
             # 4) Rotation : suppression des sauvegardes trop anciennes sur le NAS
             Write-Info "Rotation: suppression des sauvegardes de plus de $($config.KeepDays) jours..."
 
-            $keepDays = [int]$config['KeepDays']
-            $nasDir   = $config['NasDir']
-            $target   = "{0}@{1}" -f $config['NasUser'], $config['NasHost']
+            # Logs de contexte
+            Write-Info "DEBUG KeepDays (type): $($config.KeepDays) [$($config.KeepDays.GetType().FullName)]"
+            Write-Info "DEBUG NasDir: $($config.NasDir)"
+            Write-Info "DEBUG KeyPath: $($config.KeyPath)"
+            Write-Info "DEBUG NasUser: $($config.NasUser)"
+            Write-Info "DEBUG NasHost: $($config.NasHost)"
+            Write-Info "DEBUG NasPort: $($config.NasPort)"
 
-$rotateCmd = @"
-find '$nasDir' -maxdepth 1 -type f -name 'xanadu_*.db' -mtime +$keepDays -print -delete
-echo OK
-"@ -replace "`r?`n", "; "
+            # Normalisation
+            $keepDays = [int]$config.KeepDays
+            $nasDir   = $config.NasDir
+            $target   = "{0}@{1}" -f $config.NasUser, $config.NasHost
 
-            $r = & ssh -i $config['KeyPath'] -p $config['NasPort'] -o BatchMode=yes -o ConnectTimeout=$config['Timeout'] $target $rotateCmd 2>&1
+            Write-Info "DEBUG keepDays casté: $keepDays"
+            Write-Info "DEBUG target SSH: $target"
 
+            # Construction commande distante
+            $rotateCmd = "find '$nasDir' -maxdepth 1 -type f -name 'xanadu_*.db' -mtime +$keepDays -print -delete; echo OK"
+
+            Write-Info "DEBUG rotateCmd envoyé au NAS:"
+            Write-Info $rotateCmd
+
+            # Exécution SSH
+            $r = & ssh `
+                -i $config.KeyPath `
+                -p $config.NasPort `
+                -o BatchMode=yes `
+                -o ConnectTimeout=$($config.Timeout) `
+                $target `
+                $rotateCmd 2>&1
+
+            Write-Info "DEBUG ssh exit code: $LASTEXITCODE"
+            Write-Info "DEBUG ssh output:"
+            Write-Info $r
+
+            # Validation
             if ($LASTEXITCODE -ne 0 -or ($r -notmatch "OK")) {
                 throw "Rotation KO: $r"
             }
 
-            Wrtie-Ok "Rotation OK"
+            Ok "Rotation OK"
         }
 
         # Fonction interne pour vérifier et afficher la dernière sauvegarde disponible
