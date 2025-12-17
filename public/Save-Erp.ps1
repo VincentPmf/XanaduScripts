@@ -84,9 +84,9 @@
             $remoteFile = "$NasDir/xanadu_$ts.db"
 
             # 3) Transfert SCP
-            Info "Transfert de la base vers le NAS..."
-            Info "Source : $DbPath"
-            Info "Cible  : $remoteFile"
+            Write-Info "Transfert de la base vers le NAS..."
+            Write-Info "Source : $DbPath"
+            Write-Info "Cible  : $remoteFile"
 
             # IMPORTANT : construction du target scp, sinon PowerShell peut casser le ':'.
             $scpTarget = "${NasUser}@${NasHost}:$remoteFile"
@@ -99,7 +99,7 @@
             Write-Ok "Sauvegarde envoyée"
 
             # 4) Rotation : suppression des sauvegardes trop anciennes sur le NAS
-            Info "Rotation: suppression des sauvegardes de plus de $KeepDays jours..."
+            Write-Info "Rotation: suppression des sauvegardes de plus de $KeepDays jours..."
             $rotateCmd = "find '$NasDir' -maxdepth 1 -type f -name 'xanadu_*.db' -mtime +$KeepDays -print -delete; echo OK"
             $r = & ssh -i $KeyPath -p $NasPort -o BatchMode=yes "${NasUser}@${NasHost}" $rotateCmd 2>&1
             if ($LASTEXITCODE -ne 0 -or ($r -notmatch "OK")) {
@@ -114,7 +114,7 @@
             Test-Ssh $config
             Check-RemoteDir $config
 
-            Info "Recherche de la dernière sauvegarde sur le NAS..."
+            Write-Info "Recherche de la dernière sauvegarde sur le NAS..."
             $cmd = "ls -1t '$($config.NasDir)'/xanadu_*.db 2>/dev/null | head -n 1"
             $last = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes "${config.NasUser}@${config.NasHost}" $cmd 2>&1
 

@@ -1,5 +1,5 @@
 ﻿function Test-Prerequisites($config) {
-    Write-Info "Vérification des prérequis..." -Level Info
+    Write-Info "Vérification des prérequis..."
     Write-Info $config.DbPath
 
     # Vérifier commandes
