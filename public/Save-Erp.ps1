@@ -63,7 +63,7 @@
         $script:NasRoot = "\\192.168.1.98\Partage\commun\backups_sqlite"
 
         # Affiche un message d'information formaté
-        function Write-Info($msg) {
+        function Write-Info($msg) {""
             Write-Host "[INFO] $msg"
         }
 

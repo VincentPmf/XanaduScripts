@@ -321,7 +321,11 @@ function Verify-DCIntegrity {
 
         # Détermine le type d'entrée (Information ou Error) selon la présence d'échecs
         $summaryType = if ($FailedTests.Count -eq 0) { "Information" } else { "Error" }
-        Write-EventLog -LogName "Application" -Source "XanaduScripts" -EventId 3000 -EntryType $summaryType -Message $summaryMessage
+        if ($script:EventLogEnabled) {
+            Write-EventLog -LogName "Application" -Source "XanaduScripts" -EventId 3000 -EntryType $summaryType -Message $summaryMessage
+        } else {
+            Write-Host "[Warning] La source Event Log n'est pas disponible, journalisation impossible." -ForegroundColor Yellow
+        }$summaryMessage
 
         # Retourner les résultats pour usage ultérieur
         return [PSCustomObject]@{

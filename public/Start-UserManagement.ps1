@@ -64,6 +64,7 @@ function Show-MainMenu {
         Affiche le menu et stocke le choix de l'administrateur dans $choice.
     #>
 
+    # Définition des options du menu principal
     $options = @(
         "Créer un utilisateur",
         "Modifier un utilisateur",
@@ -72,7 +73,7 @@ function Show-MainMenu {
         "Réinitialiser le mot de passe utilisateur",
         "Quitter"
     )
-
+    # Affiche le menu et retourne le choix de l'utilisateur
     return Select-FromList -Title "=== Gestion des Utilisateurs ===" -Options $options
 }
 
@@ -125,11 +126,12 @@ function Invoke-CreateUser {
     #>
     [CmdletBinding()]
     param (
-        [string]$Nom,
-        [string]$Prenom,
-        [string]$Group
+        [string]$Nom,             # Nom de famille de l'utilisateur à créer (optionnel)
+        [string]$Prenom,         # Prénom de l'utilisateur à créer (optionnel)
+        [string]$Group          # Groupe/OU fonctionnel pour l'utilisateur (optionnel)
     )
 
+    # Si le nom n'est pas fourni, on le demande à l'utilisateur
     if (-not $Nom) {
         $Nom = Read-HostWithEscape "Veuillez spécifier le nom (ESC pour annuler)"
         if (-not $Nom) {
@@ -138,14 +140,16 @@ function Invoke-CreateUser {
         }
     }
 
+    # Si le prénom n'est pas fourni, on le demande à l'utilisateur
     if (-not $Prenom) {
-        $Prenom = Read-Host "Veuillez spécifier le prénom (ESC pour annuler)"
+        $Prenom = Read-HostWithEscape "Veuillez spécifier le prénom (ESC pour annuler)"
         if (-not $Prenom) {
             Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
             return
         }
     }
 
+    # Si le groupe n'est pas valide, on demande à l'utilisateur de le sélectionner
     if ($Group -notin $myGroups) {
         $Group = Select-OUGroup
         if (-not $Group -or $Group -eq "Quitter") {
@@ -154,10 +158,14 @@ function Invoke-CreateUser {
         }
     }
 
+    # Construction du SamAccountName à partir du prénom et du nom
     $SamAccountName = "$($Prenom.ToLower()).$($Nom.ToLower())"
+    # Construction du nom d'affichage
     $DisplayName    = "$Prenom $Nom"
+    # Construction de l'UPN (User Principal Name)
     $UserPrincipalName = "$SamAccountName@$((Get-ADDomain).DNSRoot)"
 
+    # Affichage des informations de l'utilisateur à créer
     Write-Host "`n=== User to create ===" -ForegroundColor Green
     Write-Host "  Display Name : $DisplayName"
     Write-Host "  SamAccountName : $SamAccountName"
@@ -165,11 +173,13 @@ function Invoke-CreateUser {
     Write-Host "  Group : $Group"
     Write-Host ""
 
+    # Demande de confirmation avant la création
     $confirmation = Read-Host "Confirmez-vous la création de cet utilisateur ? (O/N)"
     if ($confirmation -ine 'O') {
         Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
         return
     }
+    # Appel de la fonction de création d'utilisateur
     New-XanaduUser -Nom $Nom `
         -Prenom $Prenom `
         -Group $Group `
@@ -223,56 +233,62 @@ function Invoke-UpdateUser {
     #>
     [CmdletBinding()]
     param (
-        [string]$Nom,
-        [string]$Prenom,
-        [string]$SamAccountName
+        [string]$Nom,              # Nom de famille de l'utilisateur à modifier (optionnel)
+        [string]$Prenom,           # Prénom de l'utilisateur à modifier (optionnel)
+        [string]$SamAccountName    # Identifiant unique AD de l'utilisateur (optionnel)
     )
-    $user = $null
+    $user = $null                  # Initialise la variable utilisateur à null
 
+    # Si un SamAccountName est fourni, on tente de récupérer l'utilisateur directement
     if ($SamAccountName) {
         $user = Get-ADUser -Filter "SamAccountName -eq '$SamAccountName'" -Properties * -ErrorAction SilentlyContinue
     }
 
+    # Si l'utilisateur n'a pas été trouvé et qu'il manque le nom ou le prénom
     if (-not $user -and (-not $Nom -or -not $Prenom)) {
         if (-not $Nom) {
-            $Nom = Read-Host "Nom de l'utilisateur à modifier"
+            $Nom = Read-Host "Nom de l'utilisateur à modifier"   # Demande le nom si absent
         }
         if (-not $Prenom) {
-            $Prenom = Read-Host "Prénom de l'utilisateur à modifier"
+            $Prenom = Read-Host "Prénom de l'utilisateur à modifier" # Demande le prénom si absent
         }
 
+        # Si nom et prénom sont maintenant renseignés
         if ($Nom -and $Prenom) {
-            $searchSam = "$($Prenom.ToLower()).$($Nom.ToLower())"
+            $searchSam = "$($Prenom.ToLower()).$($Nom.ToLower())"   # Construit un SamAccountName standard
             $user = Get-ADUser -Filter "SamAccountName -eq '$searchSam'" -Properties * -ErrorAction SilentlyContinue
 
+            # Si toujours pas trouvé, recherche par prénom et nom
             if (-not $user) {
                 $user = Get-ADUser -Filter "GivenName -eq '$Prenom' -and Surname -eq '$Nom'" -Properties * -ErrorAction SilentlyContinue
             }
         }
     }
 
+    # Si aucun utilisateur trouvé, propose une sélection manuelle
     if (-not $user) {
         Write-Host "Aucun utilisateur trouvé." -ForegroundColor Yellow
-        $user = Select-XanaduUser
+        $user = Select-XanaduUser   # Appelle une fonction pour sélectionner un utilisateur dans la liste
         if (-not $user) {
             Write-Host "Opération annulée." -ForegroundColor Yellow
-            return
+            return                  # Arrête la fonction si aucun utilisateur n'est sélectionné
         }
     }
 
+    # Si plusieurs utilisateurs correspondent, propose de choisir lequel
     if ($user -is [array]) {
         Write-Host "Plusieurs utilisateurs trouvés :" -ForegroundColor Yellow
-        $userNames = $user | ForEach-Object { "$($_.Name) ($($_.SamAccountName))" }
+        $userNames = $user | ForEach-Object { "$($_.Name) ($($_.SamAccountName))" } # Liste les noms
         $selectedName = Select-FromList -Title "Sélectionnez l'utilisateur" -Options $userNames
         if (-not $selectedName) {
             Write-Host "Opération annulée." -ForegroundColor Yellow
             return
         }
-        $selectedSam = ($selectedName -split '\(')[1].TrimEnd(')')
+        $selectedSam = ($selectedName -split '\(')[1].TrimEnd(')') # Extrait le SamAccountName choisi
         $user = $user | Where-Object { $_.SamAccountName -eq $selectedSam }
     }
 
-
+    # Affiche les informations de l'utilisateur trouvé
     Write-Host "`n=== Utilisateur trouvé ===" -ForegroundColor Cyan
     Write-Host "  Nom complet    : $($user.Name)"
     Write-Host "  Prénom         : $($user.GivenName)"
@@ -283,21 +299,24 @@ function Invoke-UpdateUser {
     Write-Host "  Activé         : $($user.Enabled)"
     Write-Host ""
 
+    # Prépare la liste des attributs modifiables
     $attributesToUpdate = @(
         "Nom",
         "Prénom",
         "Email",
         "Groupe"
     )
+    # Ajoute l'option d'activer/désactiver selon l'état actuel
     if ($user.Enabled) {
         $attributesToUpdate += "Désactiver le compte"
     } else {
         $attributesToUpdate += "Activer le compte"
     }
-    $attributesToUpdate += "Quitter"
+    $attributesToUpdate += "Quitter" # Option pour sortir
 
     $continue = $true
     while ($continue) {
+        # Affiche le menu de choix d'attribut à modifier
         $attributeChoice = Select-FromList -Title "Sélectionnez l'attribut à modifier" -Options $attributesToUpdate
         switch ($attributeChoice) {
             "Nom" {
@@ -306,8 +325,7 @@ function Invoke-UpdateUser {
                 if (-not $newNom) {
                     Write-Host "Modification annulée." -ForegroundColor Yellow
                 } else {
-                    Update-UserName -Nom $newNom -Prenom $user.GivenName `
-                    -SamAccountName $user.SamAccountName
+                    Update-UserName -Nom $newNom -Prenom $user.GivenName -SamAccountName $user.SamAccountName
                 }
             }
             "Prénom" {
@@ -316,8 +334,7 @@ function Invoke-UpdateUser {
                 if (-not $newPrenom) {
                     Write-Host "Modification annulée." -ForegroundColor Yellow
                 } else {
-                    Update-UserName -Nom $user.Surname -Prenom $newPrenom `
-                    -SamAccountName $user.SamAccountName
+                    Update-UserName -Nom $user.Surname -Prenom $newPrenom -SamAccountName $user.SamAccountName
                 }
             }
             "Email" {
@@ -344,8 +361,8 @@ function Invoke-UpdateUser {
                         $currentOU = ($user.DistinguishedName -split ',')[1..($user.DistinguishedName.Length)] -join ','
                         $newOU = "OU=$newGroup,$currentOU"
                         Write-Host "Old OU: $currentOU, New OU: $newOU" -ForegroundColor Yellow
-                        # Move-ADObject -Identity $user.DistinguishedName -TargetPath $newOU
-                        # Write-Host "Groupe mis à jour avec succès en '$newGroup'." -ForegroundColor Green
+                        Move-ADObject -Identity $user.DistinguishedName -TargetPath $newOU
+                        Write-Host "Groupe mis à jour avec succès en '$newGroup'." -ForegroundColor Green
                     } catch {
                         Write-Host "Erreur lors de la mise à jour du groupe : $_" -Foreground Red
                     }
@@ -361,8 +378,9 @@ function Invoke-UpdateUser {
                     Write-Host "Erreur lors de la mise à jour de l'état du compte : $_" -ForegroundColor Red
                 }
             }
-
-            "Quitter" {$continue = $false}
+            "Quitter" {
+                $continue = $false # Sort de la boucle et termine la fonction
+            }
         }
     }
 }
@@ -402,16 +420,21 @@ function Invoke-DeleteUser {
         - Repose sur la fonction Select-XanaduUser pour la sélection de l'utilisateur.
     #>
 
+    # Appelle une fonction pour sélectionner l'utilisateur à supprimer
     $user = Select-XanaduUser
+
+    # Si aucun utilisateur n'est sélectionné, on annule l'opération
     if (-not $user) {
         Write-Host "Opération annulée." -ForegroundColor Yellow
         return
     }
+    # Demande une confirmation explicite à l'administrateur avant suppression
     $confirmation = Read-Host "Confirmez-vous la suppression de l'utilisateur '$($user.DisplayName)' ? (O/N)"
     if ($confirmation -ine 'O') {
         Write-Host "Opération annulée par l'utilisateur." -ForegroundColor Yellow
         return
     }
+    # Si confirmation reçue, supprime l'utilisateur de l'Active Directory
     Remove-ADUser -Identity $user.SamAccountName
 }
 
@@ -459,16 +482,20 @@ function Invoke-ResetUserPassword {
         - Repose sur la fonction Select-XanaduUser pour la sélection de l’utilisateur.
     #>
     [CmdletBinding()]
+    param ()
 
+    # Appelle une fonction pour sélectionner l'utilisateur dont le mot de passe sera réinitialisé
     $user = Select-XanaduUser
+    # Si aucun utilisateur n'est sélectionné, on annule l'opération
     if (-not $user) {
         Write-Host "Opération annulée." -ForegroundColor Yellow
         return
     }
-
+    # Génère le nouveau mot de passe temporaire selon la règle définie
     try {
+        # Exemple de règle : "Xanadu" + année en cours + "!"
         $newPassword = ConvertTo-SecureString -AsPlainText "Xanadu$(Get-Date -Format 'yyyy')!" -Force
-
+        # Applique le nouveau mot de passe et force le changement à la prochaine connexion
         Get-ADUser -Identity $user.SamAccountName |
             Set-ADAccountPassword -Reset -NewPassword $newPassword -PassThru |
             Set-ADUser -ChangePasswordAtLogon $true
@@ -533,15 +560,17 @@ function Start-UserManagement {
     [CmdletBinding(DefaultParameterSetName='Encode')]
     param(
         [ValidateSet("Create", "Update", "Delete", "List")]
-        [string]$Action,
+        [string]$Action, # Action à effectuer (optionnel)
 
-        [string]$Nom,
-        [string]$Prenom,
-        [string]$Group,
-        [string]$SamAccountName
+        [string]$Nom, # Nom de famille de l'utilisateur (optionnel)
+        [string]$Prenom, # Prénom de l'utilisateur (optionnel)
+        [string]$Group, # Groupe/OU pour l'utilisateur (optionnel)
+        [string]$SamAccountName # SamAccountName de l'utilisateur (optionnel
     )
 
+    # Si une action est spécifiée, on l'exécute directement sans menu
     if ($Action) {
+        # Switch pour appeler la fonction appropriée selon l'action
         switch ($Action) {
             "Create" { Invoke-CreateUser -Nom $Nom -Prenom $Prenom -Group $Group }
             "Update" { Invoke-UpdateUser }
@@ -551,10 +580,13 @@ function Start-UserManagement {
         return
     }
 
+    # Mode interactif avec menu principal
     $continue = $true
     while ($continue) {
+        # Affiche le menu principal et récupère le choix de l'utilisateur
         $choice = Show-MainMenu
 
+        # Exécute la fonction correspondant au choix
         switch ($choice) {
             "Créer un utilisateur"    { Invoke-CreateUser }
             "Modifier un utilisateur" { Invoke-UpdateUser }
