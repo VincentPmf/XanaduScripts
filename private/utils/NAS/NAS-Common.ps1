@@ -1,6 +1,6 @@
 ﻿function Test-Prerequisites($config) {
     Write-Info "Vérification des prérequis..." -Level Info
-    Write-Info config | Format-List -Force | Out-String | Write-Verbose
+    Write-Info $config | Format-List -Force | Out-String | Write-Verbose
 
     # Vérifier commandes
     $requiredCommands = @("ssh", "scp")
