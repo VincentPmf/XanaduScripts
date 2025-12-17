@@ -96,7 +96,7 @@
                 throw "SCP KO (code=$LASTEXITCODE). Vérifier réseau / droits / chemin NAS."
             }
 
-            Write-O "Sauvegarde envoyée"
+            Write-Ok "Sauvegarde envoyée"
 
             # 4) Rotation : suppression des sauvegardes trop anciennes sur le NAS
             Info "Rotation: suppression des sauvegardes de plus de $KeepDays jours..."

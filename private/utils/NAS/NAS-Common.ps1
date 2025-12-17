@@ -34,7 +34,7 @@ function Test-Ssh($config) {
     Assert-Command ssh
     Assert-File $config.KeyPath "Clé privée SSH"
 
-    Write-Info "Test SSH vers ${config.NasUser}@${config.NasHost} (sans mot de passe)..."
+    Write-Info "Test SSH $($config.KeyPath) vers ${config.NasUser}@${config.NasHost} (sans mot de passe)..."
     $r = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes -o ConnectTimeout=8 "${config.NasUser}@${config.NasHost}" "echo OK" 2>&1
 
     if ($LASTEXITCODE -ne 0 -or ($r -notmatch "OK")) {
