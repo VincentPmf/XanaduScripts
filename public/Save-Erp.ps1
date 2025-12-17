@@ -102,46 +102,80 @@
 
             # 4) Rotation : suppression des sauvegardes trop anciennes sur le NAS
             Write-Info "Rotation: suppression des sauvegardes de plus de $($config.KeepDays) jours..."
-            $rotateCmd = "find '$($config.NasDir)' -maxdepth 1 -type f -name 'xanadu_*.db' -mtime +$($config.KeepDays) -print -delete; echo OK"
-            $target = "{0}@{1}" -f $config['NasUser'], $config['NasHost']
+
+            $keepDays = [int]$config['KeepDays']
+            $nasDir   = $config['NasDir']
+            $target   = "{0}@{1}" -f $config['NasUser'], $config['NasHost']
+
+$rotateCmd = @"
+find '$nasDir' -maxdepth 1 -type f -name 'xanadu_*.db' -mtime +$keepDays -print -delete
+echo OK
+"@ -replace "`r?`n", "; "
+
             $r = & ssh -i $config['KeyPath'] -p $config['NasPort'] -o BatchMode=yes -o ConnectTimeout=$config['Timeout'] $target $rotateCmd 2>&1
+
             if ($LASTEXITCODE -ne 0 -or ($r -notmatch "OK")) {
                 throw "Rotation KO: $r"
             }
 
-            Write-Ok "Rotation OK"
+            Wrtie-Ok "Rotation OK"
         }
 
         # Fonction interne pour vérifier et afficher la dernière sauvegarde disponible
         function Verify-LastBackup {
+            param([Parameter(Mandatory=$true)]$config)
+
             Test-Ssh $config
             Check-RemoteDir $config
 
+            Assert-Command ssh
+            Assert-File $config.KeyPath "Clé privée SSH"
+
+            $target = "$($config.NasUser)@$($config.NasHost)"
+
             Write-Info "Recherche de la dernière sauvegarde sur le NAS..."
             $cmd = "ls -1t '$($config.NasDir)'/xanadu_*.db 2>/dev/null | head -n 1"
-            $last = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes "${config.NasUser}@${config.NasHost}" $cmd 2>&1
 
-            # Si aucune sauvegarde n’existe encore, on ne crash pas : on affiche un message clair.
+            $last = & ssh `
+                -i $config.KeyPath `
+                -p $config.NasPort `
+                -o BatchMode=yes `
+                -o ConnectTimeout=$($config.Timeout) `
+                $target `
+                $cmd 2>&1
+
             if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($last)) {
-                Warn "Aucune sauvegarde trouvée dans $($config.NasDir) (normal si premier lancement)."
-                return
+                Warn "Aucune sauvegarde trouvée dans $($config.NasDir) (normal si premier lancement). Détails: $last"
+                return $null
             }
 
             $last = $last.Trim()
 
-            # Affiche les métadonnées (nom, taille, date) pour prouver que la sauvegarde existe.
             $cmd2 = "stat -c '%n|%s|%y' '$last'"
-            $meta = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes "${config.NasUser}@${config.NasHost}" $cmd2 2>&1
+            $meta = & ssh `
+                -i $config.KeyPath `
+                -p $config.NasPort `
+                -o BatchMode=yes `
+                -o ConnectTimeout=$($config.Timeout) `
+                $target `
+                $cmd2 2>&1
+
             if ($LASTEXITCODE -ne 0) {
                 throw "Impossible de lire les métadonnées: $meta"
             }
 
             $parts = $meta.Trim() -split "\|"
-            Write-Ok "Dernière sauvegarde: $($parts[0])"
-            Write-Ok "Taille: $($parts[1]) octets"
-            Write-Ok "Date : $($parts[2])"
+
+            Ok "Dernière sauvegarde: $($parts[0])"
+            Ok "Taille: $($parts[1]) octets"
+            Ok "Date : $($parts[2])"
+
+            return [PSCustomObject]@{
+                Path = $parts[0]
+                Size = [int64]$parts[1]
+                Date = $parts[2]
+            }
         }
-    }
 
     process {
         # Exécution selon le mode demandé
