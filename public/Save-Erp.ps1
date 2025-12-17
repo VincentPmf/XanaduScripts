@@ -103,7 +103,8 @@
             # 4) Rotation : suppression des sauvegardes trop anciennes sur le NAS
             Write-Info "Rotation: suppression des sauvegardes de plus de $($config.KeepDays) jours..."
             $rotateCmd = "find '$($config.NasDir)' -maxdepth 1 -type f -name 'xanadu_*.db' -mtime +$($config.KeepDays) -print -delete; echo OK"
-            $r = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes "${config.NasUser}@${config.NasHost}" $rotateCmd 2>&1
+            $target = "{0}@{1}" -f $config['NasUser'], $config['NasHost']
+            $r = & ssh -i $config['KeyPath'] -p $config['NasPort'] -o BatchMode=yes -o ConnectTimeout=$config['Timeout'] $target $rotateCmd 2>&1
             if ($LASTEXITCODE -ne 0 -or ($r -notmatch "OK")) {
                 throw "Rotation KO: $r"
             }
