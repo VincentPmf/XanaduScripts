@@ -143,64 +143,40 @@
                 throw "Rotation KO: $r"
             }
 
-            Ok "Rotation OK"
+
+            Write-Ok "Rotation OK"
         }
 
         # Fonction interne pour vérifier et afficher la dernière sauvegarde disponible
         function Verify-LastBackup {
-            param([Parameter(Mandatory=$true)]$config)
-
             Test-Ssh $config
             Check-RemoteDir $config
 
-            Assert-Command ssh
-            Assert-File $config.KeyPath "Clé privée SSH"
-
-            $target = "$($config.NasUser)@$($config.NasHost)"
-
             Write-Info "Recherche de la dernière sauvegarde sur le NAS..."
             $cmd = "ls -1t '$($config.NasDir)'/xanadu_*.db 2>/dev/null | head -n 1"
+            $last = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes "${config.NasUser}@${config.NasHost}" $cmd 2>&1
 
-            $last = & ssh `
-                -i $config.KeyPath `
-                -p $config.NasPort `
-                -o BatchMode=yes `
-                -o ConnectTimeout=$($config.Timeout) `
-                $target `
-                $cmd 2>&1
-
+            # Si aucune sauvegarde n’existe encore, on ne crash pas : on affiche un message clair.
             if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($last)) {
-                Warn "Aucune sauvegarde trouvée dans $($config.NasDir) (normal si premier lancement). Détails: $last"
-                return $null
+                Warn "Aucune sauvegarde trouvée dans $($config.NasDir) (normal si premier lancement)."
+                return
             }
 
             $last = $last.Trim()
 
+            # Affiche les métadonnées (nom, taille, date) pour prouver que la sauvegarde existe.
             $cmd2 = "stat -c '%n|%s|%y' '$last'"
-            $meta = & ssh `
-                -i $config.KeyPath `
-                -p $config.NasPort `
-                -o BatchMode=yes `
-                -o ConnectTimeout=$($config.Timeout) `
-                $target `
-                $cmd2 2>&1
-
+            $meta = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes "${config.NasUser}@${config.NasHost}" $cmd2 2>&1
             if ($LASTEXITCODE -ne 0) {
                 throw "Impossible de lire les métadonnées: $meta"
             }
 
             $parts = $meta.Trim() -split "\|"
-
-            Ok "Dernière sauvegarde: $($parts[0])"
-            Ok "Taille: $($parts[1]) octets"
-            Ok "Date : $($parts[2])"
-
-            return [PSCustomObject]@{
-                Path = $parts[0]
-                Size = [int64]$parts[1]
-                Date = $parts[2]
-            }
+            Write-Ok "Dernière sauvegarde: $($parts[0])"
+            Write-Ok "Taille: $($parts[1]) octets"
+            Write-Ok "Date : $($parts[2])"
         }
+    }
 
     process {
         # Exécution selon le mode demandé
