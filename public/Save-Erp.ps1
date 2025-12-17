@@ -158,7 +158,7 @@
 
             # Si aucune sauvegarde n’existe encore, on ne crash pas : on affiche un message clair.
             if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($last)) {
-                Warn "Aucune sauvegarde trouvée dans $($config.NasDir) (normal si premier lancement)."
+                Write-Warn "Aucune sauvegarde trouvée dans $($config.NasDir) (normal si premier lancement)."
                 return
             }
 
