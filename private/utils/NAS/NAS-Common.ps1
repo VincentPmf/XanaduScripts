@@ -11,7 +11,7 @@
     }
 
     # 1) Pré-checks : la sauvegarde ne se lance que si tout est OK
-    Test-Ssh
+    Test-Ssh $config
     Check-RemoteDir
 
     # Vérifier fichiers locaux

@@ -111,16 +111,16 @@
 
         # Fonction interne pour vérifier et afficher la dernière sauvegarde disponible
         function Verify-LastBackup {
-            Test-Ssh
-            Check-RemoteDir
+            Test-Ssh $config
+            Check-RemoteDir $config
 
             Info "Recherche de la dernière sauvegarde sur le NAS..."
-            $cmd = "ls -1t '$NasDir'/xanadu_*.db 2>/dev/null | head -n 1"
-            $last = & ssh -i $KeyPath -p $NasPort -o BatchMode=yes "${NasUser}@${NasHost}" $cmd 2>&1
+            $cmd = "ls -1t '$($config.NasDir)'/xanadu_*.db 2>/dev/null | head -n 1"
+            $last = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes "${config.NasUser}@${config.NasHost}" $cmd 2>&1
 
             # Si aucune sauvegarde n’existe encore, on ne crash pas : on affiche un message clair.
             if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($last)) {
-                Warn "Aucune sauvegarde trouvée dans $NasDir (normal si premier lancement)."
+                Warn "Aucune sauvegarde trouvée dans $($config.NasDir) (normal si premier lancement)."
                 return
             }
 
@@ -128,7 +128,7 @@
 
             # Affiche les métadonnées (nom, taille, date) pour prouver que la sauvegarde existe.
             $cmd2 = "stat -c '%n|%s|%y' '$last'"
-            $meta = & ssh -i $KeyPath -p $NasPort -o BatchMode=yes "${NasUser}@${NasHost}" $cmd2 2>&1
+            $meta = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes "${config.NasUser}@${config.NasHost}" $cmd2 2>&1
             if ($LASTEXITCODE -ne 0) {
                 throw "Impossible de lire les métadonnées: $meta"
             }
@@ -141,27 +141,10 @@
     }
 
     process {
-                $success = $true
-
-        try {
-            switch ($Mode) {
-                "Save"   { Save-Database }
-                "Verify" { Verify-LastBackup }
-                "All"    { Save-Database; Verify-LastBackup }
-            }
-        }
-        catch {
-            $success = $false
-            Write-Err $_.Exception.Message
-        }
-
-        # Code de sortie utile pour les tâches planifiées :
-        # - 0 : OK
-        # - 1 : KO
-        if ($success) {
-            Write-Ok "FIN: OK"
-        } else {
-            Write-Err "FIN: KO"
+        switch ($Mode) {
+            "Save"   { Save-Database }
+            "Verify" { Verify-LastBackup }
+            "All"    { Save-Database; Verify-LastBackup }
         }
     }
 }
