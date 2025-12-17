@@ -81,7 +81,7 @@ function Check-RemoteDir {
         throw "Dossier NAS inaccessible: $nasDir (existe ? droits ?). Réponse: $r"
     }
 
-    Ok "Dossier NAS OK"
+    Write-Ok "Dossier NAS OK"
 }
 
 function Assert-File($path, $label){
