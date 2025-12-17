@@ -1,5 +1,5 @@
 ﻿function Test-Prerequisites($config) {
-    Write-Log "Vérification des prérequis..." -Level Info
+    Write-Ok "Vérification des prérequis..." -Level Info
 
     # Vérifier commandes
     $requiredCommands = @("ssh", "scp")
@@ -8,7 +8,7 @@
             throw "Commande manquante: $cmd. Installez OpenSSH Client."
         }
     }
-    
+
     # 1) Pré-checks : la sauvegarde ne se lance que si tout est OK
     Test-Ssh
     Check-RemoteDir
@@ -26,7 +26,7 @@
     $keyAcl = Get-Acl $config.KeyPath
     Write-Verbose "Clé SSH trouvée avec permissions appropriées"
 
-    Write-Log "Prérequis validés" -Level Success
+    Write-Ok "Prérequis validés" -Level Success
 }
 
 function Test-Ssh {
