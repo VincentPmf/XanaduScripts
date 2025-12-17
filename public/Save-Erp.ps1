@@ -93,7 +93,7 @@
 
             & scp -i $KeyPath -P $NasPort -q -- "$DbPath" "$scpTarget"
             if ($LASTEXITCODE -ne 0) {
-                throw "SCP KO (code=$LASTEXITCODE). Vérifier réseau / droits / chemin NAS."
+                throw "SCP KO (code=${LASTEXITCODE}). Vérifier réseau / droits / chemin NAS."
             }
 
             Write-Ok "Sauvegarde envoyée"
