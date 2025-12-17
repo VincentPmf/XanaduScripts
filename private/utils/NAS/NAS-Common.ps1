@@ -1,4 +1,4 @@
-﻿function Test-Prerequisites {
+﻿function Test-Prerequisites($config) {
     Write-Log "Vérification des prérequis..." -Level Info
 
     # Vérifier commandes
@@ -8,6 +8,10 @@
             throw "Commande manquante: $cmd. Installez OpenSSH Client."
         }
     }
+    
+    # 1) Pré-checks : la sauvegarde ne se lance que si tout est OK
+    Test-Ssh
+    Check-RemoteDir
 
     # Vérifier fichiers locaux
     if (-not (Test-Path -LiteralPath $config.DbPath)) {

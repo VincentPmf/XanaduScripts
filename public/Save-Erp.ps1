@@ -78,13 +78,7 @@
 
         # Fonction interne pour sauvegarder la base SQLite sur le NAS
         function Save-Database {
-            Assert-Command scp
-            Assert-File $DbPath "Base SQLite"
-
-            # 1) Pré-checks : la sauvegarde ne se lance que si tout est OK
-            Test-Ssh
-            Check-RemoteDir
-
+            Test-Prerequisites $config
             # 2) Nom de fichier horodaté pour garder un historique lisible
             $ts = Get-Date -Format "yyyy-MM-dd_HH-mm"
             $remoteFile = "$NasDir/xanadu_$ts.db"
