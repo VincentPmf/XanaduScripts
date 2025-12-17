@@ -177,10 +177,8 @@
         # - 1 : KO
         if ($success) {
             Ok "FIN: OK"
-            return
         } else {
             Err "FIN: KO"
-            exit 1
         }
     }
 }
