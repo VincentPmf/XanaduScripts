@@ -91,7 +91,7 @@
             # IMPORTANT : construction du target scp, sinon PowerShell peut casser le ':'.
             $scpTarget = "${NasUser}@${NasHost}:$remoteFile"
 
-            & scp -i $KeyPath -P $NasPort -q -- "$DbPath" "$scpTarget"
+            & scp -i $config.KeyPath -P $config.NasPort -q -- "$config.DbPath" "$scpTarget"
             if ($LASTEXITCODE -ne 0) {
                 throw "SCP KO (code=${LASTEXITCODE}). Vérifier réseau / droits / chemin NAS."
             }
@@ -99,9 +99,9 @@
             Write-Ok "Sauvegarde envoyée"
 
             # 4) Rotation : suppression des sauvegardes trop anciennes sur le NAS
-            Write-Info "Rotation: suppression des sauvegardes de plus de $KeepDays jours..."
-            $rotateCmd = "find '$NasDir' -maxdepth 1 -type f -name 'xanadu_*.db' -mtime +$KeepDays -print -delete; echo OK"
-            $r = & ssh -i $KeyPath -p $NasPort -o BatchMode=yes "${NasUser}@${NasHost}" $rotateCmd 2>&1
+            Write-Info "Rotation: suppression des sauvegardes de plus de $($config.KeepDays) jours..."
+            $rotateCmd = "find '$($config.NasDir)' -maxdepth 1 -type f -name 'xanadu_*.db' -mtime +$($config.KeepDays) -print -delete; echo OK"
+            $r = & ssh -i $config.KeyPath -p $config.NasPort -o BatchMode=yes "${config.NasUser}@${config.NasHost}" $rotateCmd 2>&1
             if ($LASTEXITCODE -ne 0 -or ($r -notmatch "OK")) {
                 throw "Rotation KO: $r"
             }
